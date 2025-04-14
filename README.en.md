@@ -5,7 +5,7 @@ This program receives audio data over UDP (e.g., RTP stream) and outputs it via 
 The program automatically detects whether packets are being received:
 - If packets arrive → Audio is played.
 - If no packets are received for 5 seconds → Audio output stops, window is hidden.
-
+- Very low adjustable latency
 ---
 
 ## 💠 Requirements
