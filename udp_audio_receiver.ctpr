@@ -35,7 +35,7 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="../../Projekte/RTP_player/unit1.pas"/>
+        <Filename Value="unit1.pas"/>
         <FRMtype Value="0"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>

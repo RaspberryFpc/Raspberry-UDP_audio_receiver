@@ -1,11 +1,11 @@
 # UDP Audio Receiver for Raspberry Pi (FPC / Qt5 / X11)
 
-This project provides a lightweight UDP audio player designed for the Raspberry Pi 4. It uses direct ALSA output to ensure minimal playback latency, making it suitable for real-time audio streaming applications. It was developed in Free Pascal using Codetyphon with Qt5 and runs under X11 on Debian Bookworm. Wayland was not tested.
+This program receives audio data over UDP (e.g., RTP stream) and outputs it via ALSA. It was developed in Free Pascal using Codetyphon with Qt5 and runs under X11 on Debian Bookworm.
 
 The program automatically detects whether packets are being received:
 - If packets arrive → Audio is played.
 - If no packets are received for 5 seconds → Audio output stops, window is hidden.
-- Very low adjustable latency
+
 ---
 
 ## 💠 Requirements

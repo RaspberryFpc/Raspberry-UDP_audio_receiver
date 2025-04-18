@@ -5,7 +5,7 @@ Dieses Programm empfängt Audio-Daten über UDP (z. B. RTP-Stream) und gibt si
 Das Programm erkennt automatisch, ob Pakete empfangen werden:
 - Wenn Pakete ankommen → Audio wird abgespielt.
 - Wenn 5 Sekunden lang keine Pakete empfangen werden → Audioausgabe wird gestoppt, Fenster wird ausgeblendet.
-- Sehr geringe einstellbare Latency 
+
 ---
 
 ## 💠 Voraussetzungen
