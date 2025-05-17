@@ -11,7 +11,6 @@ Das Programm erkennt automatisch, ob Pakete empfangen werden:
 ## 💠 Voraussetzungen
 
 - Raspberry Pi mit Debian Bookworm
-- Codetyphon mit Qt5 (z. B. qt5pas; GTK2 sollte auch funktionieren)
 - ALSA installiert
 - Netzwerkverbindung für den Empfang von UDP-Paketen
 
@@ -21,13 +20,7 @@ Das Programm erkennt automatisch, ob Pakete empfangen werden:
 
 1. Stelle sicher, dass Codetyphon eingerichtet ist.
 2. Projekt in Codetyphon öffnen.
-3. Widgetset auf `Qt5` setzen (ggf. auch `gtk2` möglich).
-4. Kompilieren.
-
-Alternativ auf der Konsole:
-```bash
-fpc -Mdelphi -Fu/pfad/zu/qt5-units dein_programm.pas
-```
+3. Kompilieren.
 
 ---
 
