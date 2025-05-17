@@ -57,6 +57,7 @@ type
   TForm1 = class(TForm)
     Button1: TButton;
     Label1: TLabel;
+    Label2: TLabel;
     Memo1: TMemo;
     statuslabel: TLabel;
     Timer1: TTimer;
@@ -110,8 +111,6 @@ implementation
 
 {$R *.frm}
 
-const
-  configFilename='udp_audio_receiver.conf';
 
 var
   memostrings: TStringList;
@@ -123,6 +122,7 @@ var
   endthread: boolean;
   frames, n: integer;
   res: boolean;
+  configfilename:string;
 
   parport, paripadresse, parfrequenz, parnetbuffer, parAlsaLatency, parswap: string;
 
@@ -216,8 +216,20 @@ var
   i, x, p: integer;
   par1, par2, s: string;
 begin
-  memo1.Lines.LoadFromFile(extractfilepath(application.ExeName) + configFilename);
-  for x := 0 to memo1.Lines.Count - 1 do
+  configfilename:= application.ExeName+'.conf';
+  if not fileexists(configfilename) then
+       begin
+         memo1.Lines.clear;
+         memo1.lines.Add('ip=0.0.0.0');
+         memo1.lines.Add('port=5010');
+         memo1.lines.Add('SizeNetworkbuffer=100000');
+         memo1.lines.Add('frequenz=48000');
+         memo1.lines.Add('swap=0');
+         memo1.lines.Add('alsalatency=28000');
+       end else
+        memo1.Lines.LoadFromFile(configfilename);
+
+for x := 0 to memo1.Lines.Count - 1 do
   begin
     s := lowercase(memo1.Lines[x]);
     p := pos('=', s);
@@ -234,13 +246,12 @@ begin
 
   // Starte RTP-Empfänger in einem eigenen Thread
   receiverthread := Treceiverthread.Create(False);
-
 end;
 
 
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-  memo1.Lines.SaveToFile(extractfilepath(application.ExeName) + configFilename);
+  memo1.Lines.SaveToFile(configFilename);
   receiverThread.Terminate;
   receiverThread.WaitFor; // Wartet, bis der Thread beendet ist
   receiverThread.Free;    // Thread-Objekt freigebe

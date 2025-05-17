@@ -4,7 +4,7 @@
     <Version Value="12"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="udp_audio_receiver"/>
+      <Title Value="udp_player"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -30,7 +30,7 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="udp_audio_receiver.ppr"/>
+        <Filename Value="udp_player.ppr"/>
         <FRMtype Value="0"/>
         <IsPartOfProject Value="True"/>
       </Unit>
@@ -47,11 +47,10 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="udp_audio_receiver"/>
+      <Filename Value="udp_player"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../Projekte/RTP_player"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

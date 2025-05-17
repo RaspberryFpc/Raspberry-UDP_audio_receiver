@@ -45,7 +45,7 @@ ffmpeg -f pulse -i default \
 
 Simply start the receiver:
 ```bash
-./alsaplayer3
+./udp_player
 ```
 
 A window will appear and automatically start playing audio when UDP packets are received.
