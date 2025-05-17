@@ -1,41 +1,33 @@
-# UDP-Audio-Empfänger für Raspberry Pi (FPC / Qt5 / X11)
+# UDP Audio Receiver for Raspberry Pi (FPC)
 
-Dieses Programm empfängt Audio-Daten über UDP (z. B. RTP-Stream) und gibt sie über ALSA aus. Es wurde in Free Pascal unter Verwendung von Codetyphon mit Qt5 entwickelt und läuft unter X11 auf Debian Bookworm.
+This program receives stereo audio data over UDP (e.g., RTP stream) and outputs it via ALSA. It was developed in Free Pascal using Codetyphon on Debian Bookworm
 
-Das Programm erkennt automatisch, ob Pakete empfangen werden:
-- Wenn Pakete ankommen → Audio wird abgespielt.
-- Wenn 5 Sekunden lang keine Pakete empfangen werden → Audioausgabe wird gestoppt, Fenster wird ausgeblendet.
-
----
-
-## 💠 Voraussetzungen
-
-- Raspberry Pi mit Debian Bookworm
-- ALSA installiert
-- Netzwerkverbindung für den Empfang von UDP-Paketen
+The program automatically detects whether packets are being received:
+- If packets arrive → Audio is played.
+- If no audio packets or only silent ones are received for 5 seconds → Audio output stops, window is hidden.
 
 ---
 
-## 🔧 Kompilierung
+## 💠 Requirements
 
-1. Stelle sicher, dass Codetyphon eingerichtet ist.
-2. Projekt in Codetyphon öffnen.
-3. Kompilieren.
+- Raspberry Pi with Debian Bookworm
+- Codetyphon 
+- ALSA installed
+- Network connection for receiving UDP packets
 
----
 
-## ▶️ Verwendung
+## ▶️ Usage
 
-### 📤 Sender (Systemaudio)
+### 📤 Sender (System Audio)
 
-Der Sender überträgt den System-Sound – also alles, was normalerweise über die Lautsprecher wiedergegeben wird.
+The sender transmits system audio – everything normally played through the speaker.
 
-Falls noch nicht vorhanden, `ffmpeg` installieren:
+If not yet installed, install `ffmpeg`:
 ```bash
 sudo apt install ffmpeg
 ```
 
-Zur Übertragung vom Systemsound den Sender mit folgendem Befehl starten:
+To transmit system audio, start the sender with the following command:
 ```bash
 ffmpeg -f pulse -i default \
        -acodec copy -f rtp \
@@ -46,63 +38,32 @@ ffmpeg -f pulse -i default \
        rtp://192.168.1.1:5010
 ```
 
-- `192.168.1.1` ist die IP-Adresse des Empfängers → anpassen!
-- `5010` ist die Portnummer → frei wählbar, muss mit Empfänger übereinstimmen
+- `192.168.1.1` is the IP address of the receiver → adjust accordingly!
+- `5010` is the port number → freely selectable, must match the receiver
 
-### 📥 Empfänger
+### 📥 Receiver
 
-Starte den Empfänger einfach:
+Simply start the receiver:
 ```bash
-./udp_audio_receiver
+./alsaplayer3
 ```
 
-Es erscheint ein Fenster und beginnt automatisch mit der Audiowiedergabe, sobald UDP-Pakete empfangen werden.
+A window will appear and automatically start playing audio when UDP packets are received.
 
 ---
 
-## 🔊 Wenn der Ton zu leise ist …
+## 🔊 If the audio is too quiet …
 
-Das kann passieren, wenn der Empfänger zu leise eingestellt ist.
+This may occur if the receiver volume is set too low.
 
-### Möglichkeiten:
-- In `alsamixer` mit `F6` das richtige Gerät wählen und Lautstärke anpassen
-- Im Terminal:
+### Possible solutions:
+- Use `alsamixer`, press `F6` to select the correct device, and increase volume
+- Or use the terminal:
   ```bash
   amixer set 'Master' 100% unmute
   ```
 
----
+## 📝 License
 
-## 📁 Autostart
-
-Erstelle die Datei:
-```bash
-/home/pi/.config/autostart/UdpReceiver.desktop
-```
-
-Mit folgendem Inhalt:
-```ini
-[Desktop Entry]
-Type=Application
-Exec=/pfad/zum/Programm/udp_audio_receiver
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name=Udp_Receiver
-Comment=Startet Udp_Receiver automatisch
-Name[de_DE]=Udp_Receiver.desktop
-```
-
-Pfad und Dateinamen entsprechend anpassen.
-
----
-
-## 📝 Lizenz
-
-Dieses Projekt steht unter der [MIT-Lizenz](LICENSE).
-
----
-
-**Autor:** RaspberryPiFpcHub  
-**GitHub:** https://github.com/RaspberryPiFpcHub
+This project is licensed under the MIT License.
 
