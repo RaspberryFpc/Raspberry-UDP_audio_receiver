@@ -5,6 +5,8 @@ This program receives stereo audio data over UDP (e.g., RTP stream) and outputs 
 The program automatically detects whether packets are being received:
 - If packets arrive → Audio is played.
 - If no audio packets or only silent ones are received for 5 seconds → Audio output stops, window is hidden.
+- For maximum quality, no codec is used – the audio is transmitted uncompressed.
+- This allows for very low latency, making it ideal for real-time transmissions (e.g., monitoring, live audio).
 
 ---
 
