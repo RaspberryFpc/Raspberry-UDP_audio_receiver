@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  dynlibs, Sockets, UnixType, pthreads;
+  Buttons, dynlibs, Sockets, UnixType, pthreads, unit2, inifiles;
 
 type
   TClassPriority = (cprOther, cprFIFO, cprRR);
@@ -47,8 +47,8 @@ const
 
   buffersize = 4096;
 
-
-
+procedure closealsa;
+function openalsa: boolean;
 
 type
 
@@ -58,15 +58,14 @@ type
     Button1: TButton;
     Label1: TLabel;
     Label2: TLabel;
-    Memo1: TMemo;
+    SpeedButton1: TSpeedButton;
     statuslabel: TLabel;
     Timer1: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure FormShow;
-    procedure formhide;
 
   private
 
@@ -106,6 +105,12 @@ var
   Form1: TForm1;
   ReceiverThread: TReceiverThread;
   delay: cint;
+  parport, paripadresse, parfrequenz, parnetbuffer, parAlsaLatency: string;
+  parswap, parHide: boolean;
+
+const
+  version = '1.0.2';
+
 
 implementation
 
@@ -113,29 +118,13 @@ implementation
 
 
 var
-  memostrings: TStringList;
   pcm: PPsnd_pcm_t;
-  testbuffer: array [0..7 * 96 - 1] of smallint;
   received: integer;
   sock: longint;
   sockaddr: TInetSockAddr;
-  endthread: boolean;
   frames, n: integer;
   res: boolean;
-  configfilename:string;
 
-  parport, paripadresse, parfrequenz, parnetbuffer, parAlsaLatency, parswap: string;
-
-
-procedure Tform1.FormShow;
-begin
-  form1.Show;
-end;
-
-procedure TForm1.formHide;
-begin
-  form1.hide;
-end;
 
 
 function SetThreadPriority(aThreadID: TThreadID; class_priority: TClassPriority; sched_priority: integer): boolean;
@@ -186,24 +175,23 @@ end;
 
 function openalsa: boolean;
 const
-  device = 'default' + #0;             // name of sound device   'hw:0,0'+ #0;//
+  device = 'hw:0,0';             // name of sound device   'hw:0,0'
 begin
   Result := False;
   as_Load;       // load the library
-  n := snd_pcm_open(@pcm, 'hw:0,0', SND_PCM_STREAM_PLAYBACK, 0);
+  //  n := snd_pcm_open(@pcm, 'hw:0,0', SND_PCM_STREAM_PLAYBACK, 0);
+  n := snd_pcm_open(@pcm, PChar(device), SND_PCM_STREAM_PLAYBACK, 0);
   if n = 0 then
     n := snd_pcm_set_params(pcm, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 2,                         // number of channels
       StrToInt(parfrequenz),                     // sample rate (Hz)
       1,                         // resampling on/off
       StrToInt(parAlsaLatency));                // latency (us)
   Result := n = 0;
-  TThread.Synchronize(nil, @Form1.formshow);
 end;
 
 
 procedure closealsa;
 begin
-  TThread.Synchronize(nil, @Form1.formhide);
   snd_pcm_drain(pcm);              // drain any remaining samples
   snd_pcm_close(pcm);
   as_unload;
@@ -213,54 +201,57 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  i, x, p: integer;
-  par1, par2, s: string;
+  ini: tinifile;
+  configfilename: string;
 begin
-  configfilename:= application.ExeName+'.conf';
-  if not fileexists(configfilename) then
-       begin
-         memo1.Lines.clear;
-         memo1.lines.Add('ip=0.0.0.0');
-         memo1.lines.Add('port=5010');
-         memo1.lines.Add('SizeNetworkbuffer=100000');
-         memo1.lines.Add('frequenz=48000');
-         memo1.lines.Add('swap=0');
-         memo1.lines.Add('alsalatency=28000');
-       end else
-        memo1.Lines.LoadFromFile(configfilename);
+  form1.Caption := 'UDP player v' + version;
 
-for x := 0 to memo1.Lines.Count - 1 do
+  configfilename := application.ExeName + '.conf';
+  if not fileexists(configfilename) then
   begin
-    s := lowercase(memo1.Lines[x]);
-    p := pos('=', s);
-    par1 := trim(copy(s, 1, p - 1));
-    par2 := trim(copy(s, p + 1, 1000));
-    if (par1) = 'ip' then  paripadresse := par2;
-    if (par1) = 'port' then  parport := par2;
-    if (par1) = 'sizenetworkbuffer' then  parnetbuffer := par2;
-    if (par1) = 'frequenz' then parfrequenz := par2;
-    if (par1) = 'swap' then parswap := par2;
-    if (par1) = 'alsalatency' then parAlsaLatency := par2;
+    ini := Tinifile.Create(configfilename);
+    ini.WriteString('network', 'ip', '0.0.0.0');
+    ini.WriteString('network', 'port', '5010');
+    ini.WriteString('network', 'buffersize', '100000');
+    ini.WriteString('audio', 'frequency', '48000');
+    ini.Writebool('audio', 'swap byte', False);
+    ini.WriteString('alsa', 'latency', '28000');
+    ini.Writebool('visible', 'hide', False);
+    ini.Free;
   end;
 
-
+  ini := Tinifile.Create(configfilename);
+  paripadresse := ini.readString('network', 'ip', '0.0.0.0');
+  parport := ini.readString('network', 'port', '5010');
+  parnetbuffer := ini.readstring('network', 'buffersize', '100000');
+  parfrequenz := ini.readstring('audio', 'frequency', '48000');
+  parswap := ini.readbool('audio', 'swap byte', False);
+  parAlsaLatency := ini.readstring('alsa', 'latency', '28000');
+  parhide := ini.readbool('visible', 'hide', False);
+  ini.Free;
   // Starte RTP-Empfänger in einem eigenen Thread
   receiverthread := Treceiverthread.Create(False);
+  if parhide then form1.WindowState := wsminimized;
+end;
+
+
+
+procedure TForm1.SpeedButton1Click(Sender: TObject);
+begin
+  form2.showmodal;
 end;
 
 
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-  memo1.Lines.SaveToFile(configFilename);
   receiverThread.Terminate;
   receiverThread.WaitFor; // Wartet, bis der Thread beendet ist
   receiverThread.Free;    // Thread-Objekt freigebe
-  endthread := True;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  Close;
+  form1.Close;
 end;
 
 
@@ -268,8 +259,6 @@ threadvar
   audiobuffer: array[0..4095] of byte;
   swapbuffer: array [0..2047] of word absolute audiobuffer;
   lastreceived: int64;
-  testval: smallint;
-
 
 procedure TReceiverThread.Execute;
 var
@@ -333,13 +322,13 @@ begin
 
       if (not alsarun) and sound then
       begin
-        openalsa;
+        openalsa;   // shows also form
         alsarun := True;
       end;
       if alsarun then
       begin
         snd_pcm_delay(pcm, @delay);
-        if parswap <> '0' then
+        if parswap then
         begin
           for x := 6 to (received - 13) div 2 do swap(swapbuffer[x]);
         end;
@@ -349,8 +338,9 @@ begin
         received := 0;
       end;
     end;
+
     if sound then lastreceived := gettickcount64;
-    if gettickcount64 - lastreceived > 10000 then
+    if gettickcount64 - lastreceived > 5000 then
     begin
       if alsarun = True then
       begin
@@ -360,7 +350,7 @@ begin
     end;
 
 
-  until terminated; //or ((gettickcount64-lastreceived)>100);
+  until terminated;
   if alsarun then
   begin
     closealsa;
@@ -374,7 +364,6 @@ procedure TForm1.Timer1Timer(Sender: TObject);
 begin
   label1.Caption := IntToStr(delay);
 end;
-
 
 
 
