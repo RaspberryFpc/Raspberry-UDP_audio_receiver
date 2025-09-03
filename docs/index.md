@@ -1,0 +1,92 @@
+---
+layout: default
+title: Network Audio Receiver (UDP) for Raspberry Pi
+description: Lightweight UDP stereo audio receiver for Raspberry Pi with very low latency via ALSA. Developed in Free Pascal on Debian Bookworm.
+---
+
+# 🎶 Network Audio Receiver (UDP) for Raspberry Pi
+
+A lightweight **UDP stereo audio receiver** for Raspberry Pi.  
+It outputs directly to **ALSA**, ensuring **very low latency** – ideal for real-time monitoring and live audio.
+
+---
+
+## ✨ Features
+
+- Receives **stereo audio over UDP** (e.g., RTP stream)  
+- Direct **ALSA audio output** for minimal delay  
+- Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm**  
+- **Automatic detection** of incoming packets:  
+  - Packets arrive → audio plays instantly  
+  - No or silent packets for 5 seconds → audio output stops  
+- **No codec** → uncompressed audio, maximum quality, minimal processing delay  
+- Optional **Hide mode**:  
+  - On startup, the window is visible  
+  - If the **Hide** checkbox is enabled, the window auto-minimizes when audio is received and stays hidden until disabled  
+
+---
+
+## 💡 Example Test Setup
+
+- **Sender**: Raspberry Pi 4 streaming YouTube audio via Wi-Fi  
+- **Receiver**: Raspberry Pi 4 connected via Ethernet  
+- **Output**: 3.5 mm jack → HiFi amplifier  
+
+Result: Stable low-latency playback in a typical home network.
+
+---
+
+## ▶️ Usage
+
+### 📤 Sender (FFmpeg example)
+
+Install `ffmpeg`:
+
+sudo apt install ffmpeg
+
+Start transmitting system audio with the provided script `StartFFmpegTransmitter.sh`.  
+- Replace the IP address with your receiver’s address  
+- Choose a matching port  
+
+Double-click the script to start streaming.
+
+### 📥 Receiver
+
+Start the player:
+
+./udp_player
+
+A window appears and starts playback automatically when UDP packets arrive.
+
+---
+
+## 🎯 Latency Optimization
+
+- **Lower buffer size** → lower delay  
+- **Too low** → possible dropouts or crackling audio  
+- Best settings depend on:  
+  - Network type (**LAN** allows lower latency than Wi-Fi)  
+  - Raspberry Pi performance  
+  - Audio hardware  
+
+---
+
+## 🔊 Audio Volume
+
+If sound is too quiet:
+
+alsamixer
+
+- Press `F6` to select the right device  
+- Raise the **Master** volume  
+
+Or via terminal:
+
+amixer set 'Master' 100% unmute
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
