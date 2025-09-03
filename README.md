@@ -17,7 +17,6 @@ The program automatically detects whether packets are being received:
 ## 💠 Requirements
 
 - Raspberry Pi running Debian Bookworm
-- Codetyphon IDE
 - ALSA installed
 - Network connection for receiving UDP packets
 
