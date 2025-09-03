@@ -5,7 +5,6 @@ UDP network audio receiver for Raspberry Pi with very low latency via ALSA.
 The program automatically detects whether packets are being received:
 
 - If packets arrive → audio is played.
-- If no audio packets, or only silent packets, are received for 5 seconds → audio output stops.
 - For maximum quality, no codec is used – the audio is transmitted uncompressed.
 - This allows for very low latency, making it ideal for real-time transmissions (e.g., monitoring, live audio).
 - A separate settings window is available.
@@ -61,6 +60,9 @@ Start the receiver:
 ```
 
 The receiver window will appear and automatically start playing audio when UDP packets are received.
+
+**Silence Handling:**  
+If no audio packets—or only silent packets—are received for 5 seconds, the ALSA output is stopped and released. When new packets arrive, ALSA is automatically re-initialized, allowing playback to resume seamlessly.
 
 ---
 
