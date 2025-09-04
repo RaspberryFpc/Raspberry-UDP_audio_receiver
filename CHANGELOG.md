@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.3] – 2025-08-13
+### Fixed
+- Crash when the settings form was closed while no sound was being played.
+
 ## [1.0.2] – 2025-08-13
 ### Added
  - A separate settings form is now available.  
