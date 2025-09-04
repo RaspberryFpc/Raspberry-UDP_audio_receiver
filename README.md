@@ -8,7 +8,7 @@ The program automatically detects whether packets are being received:
 - For maximum quality, no codec is used – the audio is transmitted uncompressed.
 - This allows for very low latency, making it ideal for real-time transmissions (e.g., monitoring, live audio).
 - A separate settings window is available.
-- At startup, the receiver window is always visible. If the `Hide` checkbox is selected, the window is automatically hidden when audio packets are received and remains hidden.
+- If the “Start Minimized” checkbox is selected, the application will start minimized.
 - A startup script for an FFmpeg audio sender (`StartFFmpegTransmitter.sh`) is provided. Place it on the desktop and start it with a double-click.
 
 ---
@@ -36,19 +36,27 @@ This setup demonstrated stable low-latency streaming under typical home network 
 ## ▶️ Usage
 
 ### 📤 Sender (System Audio)
+Install `ffmpeg`:
 
-The sender transmits system audio – everything normally played through the speaker.
-
-If not yet installed, install `ffmpeg`:
-```bash
 sudo apt install ffmpeg
-```
 
-To transmit system audio, use the provided startup file `StartFFmpegTransmitter.sh`:
+To transmit system audio, use the provided startup script **`StartFFmpegTransmitter.sh`**:
 
-- Replace the IP address with the correct address of your receiver.
-- Select a port that matches the receiver configuration.
-- Place the file on the desktop and start it with a double-click.
+1. Edit the script and replace the IP address with the address of your receiver.  
+2. Set the port number to match the configuration on the receiver.  
+3. Make the script executable:  
+   ```bash
+   chmod +x StartFFmpegTransmitter.sh
+
+    Save the file, place it on the desktop, and start it with a double-click.
+
+### 📥 Receiver
+
+Start the player:
+
+./udp_player
+
+A window appears and starts playback automatically when UDP packets arrive.
 
 ---
 

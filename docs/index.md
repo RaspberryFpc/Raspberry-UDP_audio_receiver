@@ -17,13 +17,11 @@ It outputs directly to **ALSA**, ensuring **very low latency** – ideal for rea
 - Direct **ALSA audio output** for minimal delay  
 - Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm**  
 - **Automatic detection** of incoming packets:  
-  - Packets arrive → audio plays instantly  
-  - No or silent packets for 5 seconds → audio output stops  
+- Packets arrive → audio plays instantly  
+- No or silent packets for 5 seconds → audio output stops  
 - **No codec** → uncompressed audio, maximum quality, minimal processing delay  
-- Optional **Hide mode**:  
-  - On startup, the window is visible  
-  - If the **Hide** checkbox is enabled, the window auto-minimizes when audio is received and stays hidden until disabled  
-
+- On startup, the window is visible  
+- If the “Start Minimized” checkbox is selected, the application will start minimized.
 ---
 
 ## 💡 Example Test Setup
@@ -38,17 +36,21 @@ Result: Stable low-latency playback in a typical home network.
 
 ## ▶️ Usage
 
-### 📤 Sender (FFmpeg example)
 
+### 📤 Sender (System Audio)
 Install `ffmpeg`:
 
 sudo apt install ffmpeg
 
-Start transmitting system audio with the provided script `StartFFmpegTransmitter.sh`.  
-- Replace the IP address with your receiver’s address  
-- Choose a matching port  
+To transmit system audio, use the provided startup script **`StartFFmpegTransmitter.sh`**:
 
-Double-click the script to start streaming.
+1. Edit the script and replace the IP address with the address of your receiver.  
+2. Set the port number to match the configuration on the receiver.  
+3. Make the script executable:  
+   ```bash
+   chmod +x StartFFmpegTransmitter.sh
+
+    Save the file, place it on the desktop, and start it with a double-click.
 
 ### 📥 Receiver
 

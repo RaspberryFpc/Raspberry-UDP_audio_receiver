@@ -192,9 +192,13 @@ end;
 
 procedure closealsa;
 begin
+  if assigned(pcm) then
+  begin
   snd_pcm_drain(pcm);              // drain any remaining samples
   snd_pcm_close(pcm);
+  pcm:=nil;
   as_unload;
+  end;
 end;
 
 
@@ -212,7 +216,7 @@ begin
     ini := Tinifile.Create(configfilename);
     ini.WriteString('network', 'ip', '0.0.0.0');
     ini.WriteString('network', 'port', '5010');
-    ini.WriteString('network', 'buffersize', '100000');
+    ini.WriteString('network', 'buffersize', '4000');
     ini.WriteString('audio', 'frequency', '48000');
     ini.Writebool('audio', 'swap byte', False);
     ini.WriteString('alsa', 'latency', '28000');
@@ -223,7 +227,7 @@ begin
   ini := Tinifile.Create(configfilename);
   paripadresse := ini.readString('network', 'ip', '0.0.0.0');
   parport := ini.readString('network', 'port', '5010');
-  parnetbuffer := ini.readstring('network', 'buffersize', '100000');
+  parnetbuffer := ini.readstring('network', 'buffersize', '4000');
   parfrequenz := ini.readstring('audio', 'frequency', '48000');
   parswap := ini.readbool('audio', 'swap byte', False);
   parAlsaLatency := ini.readstring('alsa', 'latency', '28000');
