@@ -109,7 +109,7 @@ var
   parswap, parHide: boolean;
 
 const
-  version = '1.0.2';
+  version = '1.0.3';
 
 
 implementation
