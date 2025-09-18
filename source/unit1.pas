@@ -105,11 +105,11 @@ var
   Form1: TForm1;
   ReceiverThread: TReceiverThread;
   delay: cint;
-  parport, paripadresse, parfrequenz, parnetbuffer, parAlsaLatency: string;
+  parport, paripadresse, parfrequenz, parnetbuffer, parAlsaLatency,paroutputdevice: string;
   parswap, parHide: boolean;
 
 const
-  version = '1.0.3';
+  version = '1.0.4';
 
 
 implementation
@@ -174,12 +174,17 @@ end;
 
 
 function openalsa: boolean;
-const
-  device = 'hw:0,0';             // name of sound device   'hw:0,0'
+var
+  device : string;   //'hw:0,0';             // name of sound device
+  p:integer;
 begin
+  paroutputdevice:=trim(paroutputdevice);
+  p:=pos(' ',paroutputdevice);
+  if p=0 then  device:= paroutputdevice
+       else
+        device:=trim(copy(paroutputdevice,1,p-1));
   Result := False;
   as_Load;       // load the library
-  //  n := snd_pcm_open(@pcm, 'hw:0,0', SND_PCM_STREAM_PLAYBACK, 0);
   n := snd_pcm_open(@pcm, PChar(device), SND_PCM_STREAM_PLAYBACK, 0);
   if n = 0 then
     n := snd_pcm_set_params(pcm, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 2,                         // number of channels
@@ -220,6 +225,7 @@ begin
     ini.WriteString('audio', 'frequency', '48000');
     ini.Writebool('audio', 'swap byte', False);
     ini.WriteString('alsa', 'latency', '28000');
+    ini.WriteString('alsa', 'outputdevice', 'hw:0,0');
     ini.Writebool('visible', 'hide', False);
     ini.Free;
   end;
@@ -231,6 +237,7 @@ begin
   parfrequenz := ini.readstring('audio', 'frequency', '48000');
   parswap := ini.readbool('audio', 'swap byte', False);
   parAlsaLatency := ini.readstring('alsa', 'latency', '28000');
+  parOutputDevice := ini.readstring('alsa', 'outputdevice', 'hw:0,0');
   parhide := ini.readbool('visible', 'hide', False);
   ini.Free;
   // Starte RTP-Empfänger in einem eigenen Thread

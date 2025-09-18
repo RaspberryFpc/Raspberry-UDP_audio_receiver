@@ -1,18 +1,18 @@
 object Form2: TForm2
   Left = 455
-  Height = 243
+  Height = 306
   Top = 43
-  Width = 320
+  Width = 422
   Caption = 'UDP player settings'
-  ClientHeight = 243
-  ClientWidth = 320
+  ClientHeight = 306
+  ClientWidth = 422
   DesignTimePPI = 102
   LCLVersion = '8.7'
   OnClose = FormClose
   OnShow = FormShow
   object Edit1: TEdit
     Left = 168
-    Height = 31
+    Height = 33
     Top = 40
     Width = 144
     Alignment = taCenter
@@ -21,7 +21,7 @@ object Form2: TForm2
   end
   object Edit2: TEdit
     Left = 168
-    Height = 31
+    Height = 33
     Top = 72
     Width = 144
     Alignment = taCenter
@@ -30,7 +30,7 @@ object Form2: TForm2
   end
   object Edit3: TEdit
     Left = 168
-    Height = 31
+    Height = 33
     Top = 104
     Width = 144
     Alignment = taCenter
@@ -39,7 +39,7 @@ object Form2: TForm2
   end
   object Edit4: TEdit
     Left = 168
-    Height = 31
+    Height = 33
     Top = 136
     Width = 144
     Alignment = taCenter
@@ -48,10 +48,10 @@ object Form2: TForm2
     Text = '28000'
   end
   object CBByteOrder: TCheckBox
-    Left = 40
-    Height = 29
-    Top = 176
-    Width = 251
+    Left = 64
+    Height = 28
+    Top = 248
+    Width = 257
     Caption = 'Swap Byte Order (Endianness)'
     TabOrder = 4
   end
@@ -93,7 +93,7 @@ object Form2: TForm2
   end
   object Edit5: TEdit
     Left = 168
-    Height = 31
+    Height = 33
     Top = 8
     Width = 144
     Alignment = taCenter
@@ -111,11 +111,29 @@ object Form2: TForm2
     Caption = 'IP address'
   end
   object CBHide: TCheckBox
-    Left = 40
-    Height = 29
-    Top = 200
-    Width = 144
+    Left = 64
+    Height = 28
+    Top = 272
+    Width = 150
     Caption = 'Start minimized'
     TabOrder = 6
+  end
+  object Label6: TLabel
+    Left = 144
+    Height = 23
+    Top = 184
+    Width = 126
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Output device'
+  end
+  object ComboBox1: TComboBox
+    Left = 8
+    Height = 33
+    Top = 208
+    Width = 408
+    ItemHeight = 29
+    TabOrder = 7
+    Text = 'hw:0,0'
   end
 end
