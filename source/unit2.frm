@@ -1,121 +1,169 @@
 object Form2: TForm2
   Left = 455
-  Height = 243
+  Height = 321
   Top = 43
-  Width = 320
+  Width = 401
   Caption = 'UDP player settings'
-  ClientHeight = 243
-  ClientWidth = 320
-  DesignTimePPI = 102
-  LCLVersion = '8.7'
+  ClientHeight = 321
+  ClientWidth = 401
+  LCLVersion = '8.6'
   OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
-  object Edit1: TEdit
-    Left = 168
-    Height = 31
-    Top = 40
-    Width = 144
+  object Ed_port: TEdit
+    Left = 183
+    Height = 32
+    Top = 102
+    Width = 136
     Alignment = taCenter
     TabOrder = 0
-    Text = '5010'
+    Text = '0'
   end
-  object Edit2: TEdit
-    Left = 168
-    Height = 31
-    Top = 72
-    Width = 144
+  object Ed_netbuffer: TEdit
+    Left = 183
+    Height = 32
+    Top = 132
+    Width = 136
     Alignment = taCenter
     TabOrder = 1
-    Text = '100000'
+    Text = '10000'
   end
-  object Edit3: TEdit
-    Left = 168
-    Height = 31
-    Top = 104
-    Width = 144
+  object Ed_freq: TEdit
+    Left = 183
+    Height = 32
+    Top = 162
+    Width = 136
     Alignment = taCenter
     TabOrder = 2
     Text = '48000'
   end
-  object Edit4: TEdit
-    Left = 168
-    Height = 31
-    Top = 136
-    Width = 144
+  object Ed_lat: TEdit
+    Left = 183
+    Height = 32
+    Top = 192
+    Width = 136
     Alignment = taCenter
     AutoSelect = False
     TabOrder = 3
     Text = '28000'
   end
   object CBByteOrder: TCheckBox
-    Left = 40
-    Height = 29
-    Top = 176
-    Width = 251
+    Left = 8
+    Height = 27
+    Top = 232
+    Width = 244
     Caption = 'Swap Byte Order (Endianness)'
     TabOrder = 4
   end
   object Label1: TLabel
-    Left = 16
-    Height = 23
-    Top = 40
-    Width = 150
+    Left = 40
+    Height = 22
+    Top = 102
+    Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Port'
   end
   object Label2: TLabel
-    Left = 16
-    Height = 23
-    Top = 72
-    Width = 150
+    Left = 40
+    Height = 22
+    Top = 132
+    Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Size networkbuffer'
   end
   object Label3: TLabel
-    Left = 16
-    Height = 23
-    Top = 104
-    Width = 150
+    Left = 40
+    Height = 22
+    Top = 162
+    Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Frequency Hz'
   end
   object Label4: TLabel
-    Left = 16
-    Height = 23
-    Top = 140
-    Width = 150
+    Left = 40
+    Height = 22
+    Top = 196
+    Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Alsa Latency µs'
   end
-  object Edit5: TEdit
-    Left = 168
-    Height = 31
-    Top = 8
-    Width = 144
+  object Ed_ip: TEdit
+    Left = 183
+    Height = 32
+    Top = 72
+    Width = 136
     Alignment = taCenter
     AutoSelect = False
     TabOrder = 5
     Text = '0.0.0.0'
   end
   object Label5: TLabel
-    Left = 16
-    Height = 23
-    Top = 12
-    Width = 150
+    Left = 40
+    Height = 22
+    Top = 75
+    Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'IP address'
   end
   object CBHide: TCheckBox
-    Left = 40
-    Height = 29
-    Top = 200
-    Width = 144
+    Left = 8
+    Height = 27
+    Top = 256
+    Width = 143
     Caption = 'Start minimized'
     TabOrder = 6
+  end
+  object Label6: TLabel
+    Left = 128
+    Height = 22
+    Top = 0
+    Width = 119
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Output device'
+  end
+  object ComboBox1: TComboBox
+    Left = 8
+    Height = 32
+    Top = 24
+    Width = 384
+    ItemHeight = 28
+    Style = csSimple
+    TabOrder = 7
+    Text = 'hw:'
+    OnChange = ComboBox1Change
+  end
+  object Button1: TButton
+    Left = 272
+    Height = 25
+    Top = 288
+    Width = 112
+    Caption = 'Save changes'
+    TabOrder = 8
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 144
+    Height = 25
+    Top = 288
+    Width = 112
+    Caption = 'Test changes'
+    TabOrder = 9
+    OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 16
+    Height = 25
+    Top = 288
+    Width = 112
+    Caption = 'Delete'
+    TabOrder = 10
+    OnClick = Button3Click
   end
 end

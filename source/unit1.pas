@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, dynlibs, Sockets, UnixType, pthreads, unit2, inifiles;
+  Buttons, ComCtrls, dynlibs, Sockets, UnixType, pthreads, unit2, inifiles;
 
 type
   TClassPriority = (cprOther, cprFIFO, cprRR);
@@ -44,11 +44,10 @@ const
 
   RTP_HEADER_SIZE = 12;   // Standardgröße des RTP-Headers
   PORT = 5010;            // UDP-Port für RTP
-
   buffersize = 4096;
 
 procedure closealsa;
-function openalsa: boolean;
+function OpenAlsa: boolean;
 
 type
 
@@ -58,6 +57,8 @@ type
     Button1: TButton;
     Label1: TLabel;
     Label2: TLabel;
+    ProgressBar1: TProgressBar;
+    ProgressBar2: TProgressBar;
     SpeedButton1: TSpeedButton;
     statuslabel: TLabel;
     Timer1: TTimer;
@@ -102,14 +103,16 @@ procedure as_Unload();     // unload and frees the lib from memory
 
 
 var
+  par_name, par_netbuffer, par_port, par_ip, par_freq, par_latency: string;
+  par_byteorder, par_hide: boolean;
+
+
   Form1: TForm1;
   ReceiverThread: TReceiverThread;
   delay: cint;
-  parport, paripadresse, parfrequenz, parnetbuffer, parAlsaLatency: string;
-  parswap, parHide: boolean;
 
 const
-  version = '1.0.3';
+  version = '1.0.5';
 
 
 implementation
@@ -124,7 +127,9 @@ var
   sockaddr: TInetSockAddr;
   frames, n: integer;
   res: boolean;
-
+  timercounter: word;
+  peakleft, peakright: integer;
+  DisplayPeakL,DisplayPeakR:integer;
 
 
 function SetThreadPriority(aThreadID: TThreadID; class_priority: TClassPriority; sched_priority: integer): boolean;
@@ -172,20 +177,28 @@ begin
   as_Handle := DynLibs.NilHandle;
 end;
 
+function OpenAlsa: boolean;
 
-function openalsa: boolean;
-const
-  device = 'hw:0,0';             // name of sound device   'hw:0,0'
+  //function openalsa: boolean;
+var
+  device, au_name: string;   //'hw:0,0';             // name of sound device
+  p: integer;
 begin
+  // paroutputdevice:=trim(paroutputdevice);
+
+
+  p := pos(' ', par_name);
+  if p = 0 then  device := par_name
+  else
+    device := trim(copy(par_name, 1, p - 1));
   Result := False;
   as_Load;       // load the library
-  //  n := snd_pcm_open(@pcm, 'hw:0,0', SND_PCM_STREAM_PLAYBACK, 0);
   n := snd_pcm_open(@pcm, PChar(device), SND_PCM_STREAM_PLAYBACK, 0);
   if n = 0 then
     n := snd_pcm_set_params(pcm, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 2,                         // number of channels
-      StrToInt(parfrequenz),                     // sample rate (Hz)
+      StrToInt(par_freq),                     // sample rate (Hz)
       1,                         // resampling on/off
-      StrToInt(parAlsaLatency));                // latency (us)
+      StrToInt(par_Latency));                // latency (us)
   Result := n = 0;
 end;
 
@@ -194,48 +207,18 @@ procedure closealsa;
 begin
   if assigned(pcm) then
   begin
-  snd_pcm_drain(pcm);              // drain any remaining samples
-  snd_pcm_close(pcm);
-  pcm:=nil;
-  as_unload;
+    snd_pcm_drain(pcm);              // drain any remaining samples
+    snd_pcm_close(pcm);
+    pcm := nil;
+    as_unload;
   end;
 end;
 
 
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  ini: tinifile;
-  configfilename: string;
 begin
   form1.Caption := 'UDP player v' + version;
-
-  configfilename := application.ExeName + '.conf';
-  if not fileexists(configfilename) then
-  begin
-    ini := Tinifile.Create(configfilename);
-    ini.WriteString('network', 'ip', '0.0.0.0');
-    ini.WriteString('network', 'port', '5010');
-    ini.WriteString('network', 'buffersize', '4000');
-    ini.WriteString('audio', 'frequency', '48000');
-    ini.Writebool('audio', 'swap byte', False);
-    ini.WriteString('alsa', 'latency', '28000');
-    ini.Writebool('visible', 'hide', False);
-    ini.Free;
-  end;
-
-  ini := Tinifile.Create(configfilename);
-  paripadresse := ini.readString('network', 'ip', '0.0.0.0');
-  parport := ini.readString('network', 'port', '5010');
-  parnetbuffer := ini.readstring('network', 'buffersize', '4000');
-  parfrequenz := ini.readstring('audio', 'frequency', '48000');
-  parswap := ini.readbool('audio', 'swap byte', False);
-  parAlsaLatency := ini.readstring('alsa', 'latency', '28000');
-  parhide := ini.readbool('visible', 'hide', False);
-  ini.Free;
-  // Starte RTP-Empfänger in einem eigenen Thread
-  receiverthread := Treceiverthread.Create(False);
-  if parhide then form1.WindowState := wsminimized;
 end;
 
 
@@ -259,9 +242,18 @@ begin
 end;
 
 
+
+
+type
+  double_smallints = record
+    L: smallint;
+    R: smallint;
+  end;
+
 threadvar
   audiobuffer: array[0..4095] of byte;
   swapbuffer: array [0..2047] of word absolute audiobuffer;
+  Framebuffer: array [0..1023] of double_smallints absolute audiobuffer;
   lastreceived: int64;
 
 procedure TReceiverThread.Execute;
@@ -269,10 +261,11 @@ var
   bufsize: integer = $8000;// 256 KB
   port: word;
   lport: longint;
-  x: integer;
+  x, y: integer;
   timeout: TTimeVal;
   alsarun: boolean;
   sound: boolean;
+  peak: integer;
 begin
   res := SetThreadPriority(getcurrentthreadid, cprrr, 22);
 
@@ -287,12 +280,12 @@ begin
 
   FillChar(sockaddr, SizeOf(sockaddr), 0);
   sockaddr.sin_family := AF_INET;
-  lport := 5010;
-  trystrtoint(parport, Lport);
+  lport := StrToInt(par_port);
+  trystrtoint(par_port, Lport);
   port := lport;
 
   sockaddr.sin_port := htons(PORT);
-  sockaddr.sin_addr := StrToNetAddr(paripadresse);
+  sockaddr.sin_addr := StrToNetAddr(par_ip);
 
   fpsetsockopt(sock, SOL_SOCKET, SO_RCVBUF, @bufsize, SizeOf(bufsize));
 
@@ -332,10 +325,33 @@ begin
       if alsarun then
       begin
         snd_pcm_delay(pcm, @delay);
-        if parswap then
+        if par_byteorder then
         begin
-          for x := 6 to (received - 13) div 2 do swap(swapbuffer[x]);
+          for x := 0 to (received div 2) - 1 do
+            swapbuffer[x] := SwapEndian(swapbuffer[x]);
         end;
+
+
+        //beim 6.sample anfangen für links
+
+        for y := 3 to (received - 12) div 4 - 1 do
+        begin
+          if Framebuffer[y].L < 0 then
+            peak := -integer(Framebuffer[y].L)   // erst in Integer casten
+          else
+            peak := Framebuffer[y].L;
+          if peak > peakleft then
+            peakleft := peak;
+
+          if Framebuffer[y].R < 0 then
+            peak := -integer(Framebuffer[y].R)
+          else
+            peak := Framebuffer[y].R;
+
+          if peak > peakright then
+            peakright := peak;
+        end;
+
         frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
         if frames < 0 then
           frames := snd_pcm_recover(pcm, frames, 0); // try to recover from any error
@@ -364,9 +380,42 @@ begin
 end;
 
 
+
+
+
+procedure VUMeter;
+const
+  decayStep = $8000 div 200; // für 4s bei 20ms
+var
+  peak: Integer;
+
+begin
+
+  // atomar auslesen und zurücksetzen
+  peak := InterlockedExchange(peakleft, 0);
+  dec(DisplayPeakL,decayStep);
+  if DisplayPeakL < peak then DisplayPeakL := peak;
+
+   peak := InterlockedExchange(Peakright, 0);
+  dec(DisplayPeakR,decayStep);
+  if DisplayPeakR < peak then DisplayPeakR := peak;
+
+  peakleft:=0;
+  Peakright:=0;
+
+  form1.Progressbar1.Position:=displayPeakL;
+  form1.Progressbar2.Position:=displayPeakR;
+
+end;
+
+
+
+
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-  label1.Caption := IntToStr(delay);
+  Inc(timercounter);
+  if timercounter mod 25 = 0 then label1.Caption := IntToStr(delay);
+  VUMeter;
 end;
 
 

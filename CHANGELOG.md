@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.5] – 2025-09-23
+### Fixed
+- Port setting: default value 5010 and alternative configurations now work correctly.
+- Endian setting now functions as expected.
+- Config file handling is now Linux-conform, stored at `/home/pi/.config/udp_player.cfg`.
+
+### Added
+- Separate settings for all available audio outputs.
+- VU meter display for audio signal levels.
+
+## [1.0.4] – 2025-08-18
+###Added
+- Option to select the audio output device (Headphones/Jack, HDMI, USB sound card).
+
 ## [1.0.3] – 2025-08-13
 ### Fixed
 - Crash when the settings form was closed while no sound was being played.
