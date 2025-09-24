@@ -89,9 +89,9 @@ Control / Field | Description
 **Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 3000 for USB audio.
 **Swap Byte Order** | Enable this if the incoming audio uses a different byte order (big/little endian).
 **Hide Window** | If enabled, the application window remains minimized or hidden once audio starts.
-**Activate** | Immediately applies the current settings without saving them.
-**Save** | Saves the current settings to the configuration file for future use.
-**Delete Device** | Deletes the selected device configuration. If the device exists, it will be recreated with default values at the next program start.
+**Test changes** | Immediately applies the current settings without saving them.
+**Save changes** | Saves the current settings to the configuration file for future use.
+**Delete** | Deletes the selected device configuration. If the device exists, it will be recreated with default values at the next program start.
 
 ---
 
