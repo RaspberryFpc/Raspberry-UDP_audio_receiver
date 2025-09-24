@@ -1,6 +1,3 @@
-Hier ist die komplette, aktualisierte Markdown-Datei inklusive Settings-Übersicht für Form2 und Hinweise zu PipeWire/ALSA:
-
-````markdown
 ---
 
 layout: default
