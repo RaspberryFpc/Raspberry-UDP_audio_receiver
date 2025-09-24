@@ -1,5 +1,3 @@
----
-
 layout: default
 title: Network Audio Receiver (UDP) for Raspberry Pi
 description: Lightweight UDP stereo audio receiver for Raspberry Pi with very low latency via ALSA. Developed in Free Pascal on Debian Bookworm.
