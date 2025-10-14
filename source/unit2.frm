@@ -10,7 +10,6 @@ object Form2: TForm2
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  OnShow = FormShow
   object Ed_port: TEdit
     Left = 183
     Height = 32

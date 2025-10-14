@@ -112,7 +112,7 @@ var
   delay: cint;
 
 const
-  version = '1.0.5';
+  version = '1.0.6';
 
 
 implementation
@@ -129,7 +129,7 @@ var
   res: boolean;
   timercounter: word;
   peakleft, peakright: integer;
-  DisplayPeakL,DisplayPeakR:integer;
+  DisplayPeakL, DisplayPeakR: integer;
 
 
 function SetThreadPriority(aThreadID: TThreadID; class_priority: TClassPriority; sched_priority: integer): boolean;
@@ -185,14 +185,14 @@ var
   p: integer;
 begin
   // paroutputdevice:=trim(paroutputdevice);
-
+  //  closealsa;
 
   p := pos(' ', par_name);
   if p = 0 then  device := par_name
   else
     device := trim(copy(par_name, 1, p - 1));
   Result := False;
-  as_Load;       // load the library
+  // load the library
   n := snd_pcm_open(@pcm, PChar(device), SND_PCM_STREAM_PLAYBACK, 0);
   if n = 0 then
     n := snd_pcm_set_params(pcm, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 2,                         // number of channels
@@ -210,7 +210,6 @@ begin
     snd_pcm_drain(pcm);              // drain any remaining samples
     snd_pcm_close(pcm);
     pcm := nil;
-    as_unload;
   end;
 end;
 
@@ -219,6 +218,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   form1.Caption := 'UDP player v' + version;
+  as_Load;
 end;
 
 
@@ -234,6 +234,7 @@ begin
   receiverThread.Terminate;
   receiverThread.WaitFor; // Wartet, bis der Thread beendet ist
   receiverThread.Free;    // Thread-Objekt freigebe
+  as_unload;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -254,7 +255,7 @@ threadvar
   audiobuffer: array[0..4095] of byte;
   swapbuffer: array [0..2047] of word absolute audiobuffer;
   Framebuffer: array [0..1023] of double_smallints absolute audiobuffer;
-  lastreceived: int64;
+
 
 procedure TReceiverThread.Execute;
 var
@@ -263,7 +264,7 @@ var
   lport: longint;
   x, y: integer;
   timeout: TTimeVal;
-  alsarun: boolean;
+  //  alsarun: boolean;
   sound: boolean;
   peak: integer;
 begin
@@ -300,85 +301,59 @@ begin
     Exit;
   end;
 
-  //  openalsa;
-  alsarun := False;  //true;
-  repeat
-    sound := False;
 
+  repeat
     received := fpRecv(sock, @audiobuffer, SizeOf(audiobuffer), 0); // in samples
 
-    if received > 0 then
+    if assigned(pcm) and   (received>0) then
     begin
-      for x := 12 to received - 1 do
-        if audiobuffer[x] <> 0 then
-        begin
-          sound := True;
-          break;
-        end;
 
-
-      if (not alsarun) and sound then
+    if par_byteorder then
       begin
-        openalsa;   // shows also form
-        alsarun := True;
+        for x := 0 to (received div 2) - 1 do
+          swapbuffer[x] := SwapEndian(swapbuffer[x]);
       end;
-      if alsarun then
-      begin
-        snd_pcm_delay(pcm, @delay);
-        if par_byteorder then
-        begin
-          for x := 0 to (received div 2) - 1 do
-            swapbuffer[x] := SwapEndian(swapbuffer[x]);
-        end;
 
 
-        //beim 6.sample anfangen für links
+      //beim 6.sample anfangen für links
+       snd_pcm_delay(pcm, @delay);
 
-        for y := 3 to (received - 12) div 4 - 1 do
-        begin
-          if Framebuffer[y].L < 0 then
-            peak := -integer(Framebuffer[y].L)   // erst in Integer casten
-          else
-            peak := Framebuffer[y].L;
-          if peak > peakleft then
-            peakleft := peak;
-
-          if Framebuffer[y].R < 0 then
-            peak := -integer(Framebuffer[y].R)
-          else
-            peak := Framebuffer[y].R;
-
-          if peak > peakright then
-            peakright := peak;
-        end;
-
-        frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
-        if frames < 0 then
-          frames := snd_pcm_recover(pcm, frames, 0); // try to recover from any error
-        received := 0;
-      end;
+      frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
+      if frames < 0 then
+        frames := snd_pcm_recover(pcm, frames, 0); // try to recover from any error
+      received := 0;
     end;
 
-    if sound then lastreceived := gettickcount64;
-    if gettickcount64 - lastreceived > 5000 then
-    begin
-      if alsarun = True then
+
+
+      peakleft := 0;
+       peakright := 0;
+
+      for y := 3 to (received - 12) div 4 - 1 do
       begin
-        alsarun := False;
-        closealsa;
+        if Framebuffer[y].L < 0 then
+          peak := -integer(Framebuffer[y].L)   // erst in Integer casten
+        else
+          peak := Framebuffer[y].L;
+        if peak > peakleft then
+          peakleft := peak;
+
+        if Framebuffer[y].R < 0 then
+          peak := -integer(Framebuffer[y].R)
+        else
+          peak := Framebuffer[y].R;
+
+        if peak > peakright then
+          peakright := peak;
       end;
-    end;
+
+ //   sound := (peakleft > 0) or (peakright > 0);
 
 
   until terminated;
-  if alsarun then
-  begin
-    closealsa;
-    alsarun := False;
-  end;
+  closealsa;
   closesocket(sock);
 end;
-
 
 
 
@@ -387,24 +362,23 @@ procedure VUMeter;
 const
   decayStep = $8000 div 200; // für 4s bei 20ms
 var
-  peak: Integer;
-
+  peak: integer;
 begin
 
   // atomar auslesen und zurücksetzen
   peak := InterlockedExchange(peakleft, 0);
-  dec(DisplayPeakL,decayStep);
+  Dec(DisplayPeakL, decayStep);
   if DisplayPeakL < peak then DisplayPeakL := peak;
 
-   peak := InterlockedExchange(Peakright, 0);
-  dec(DisplayPeakR,decayStep);
+  peak := InterlockedExchange(Peakright, 0);
+  Dec(DisplayPeakR, decayStep);
   if DisplayPeakR < peak then DisplayPeakR := peak;
 
-  peakleft:=0;
-  Peakright:=0;
+  peakleft := 0;
+  Peakright := 0;
 
-  form1.Progressbar1.Position:=displayPeakL;
-  form1.Progressbar2.Position:=displayPeakR;
+  form1.Progressbar1.Position := displayPeakL;
+  form1.Progressbar2.Position := displayPeakR;
 
 end;
 

@@ -17,9 +17,6 @@ It outputs directly to **ALSA** (also compatible with **PipeWire** via ALSA emul
 * Direct **ALSA audio output** for minimal delay
 * Fully compatible with **PipeWire** via ALSA emulation
 * Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm**
-* **Automatic detection** of incoming packets:
-  * Packets arrive → audio plays instantly
-  * No or silent packets for 5 seconds → audio output stops
 * **No codec** → uncompressed audio, maximum quality, minimal processing delay
 * Supports multiple audio outputs: **3.5 mm jack, HDMI, USB, and more** (selectable in settings)
 * On startup, the window is visible

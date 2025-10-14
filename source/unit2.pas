@@ -34,7 +34,6 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure FillALSADevices;
     procedure Activate_Parameter;
     function LoadParameter(au_name: string): boolean;
@@ -54,6 +53,9 @@ implementation
 uses unit1;
   {$R *.frm}
 
+const
+  unavail = 'unavailable; ';
+
 var
   configlist: TStringList;
   configfilename: string;
@@ -72,6 +74,7 @@ end;
 procedure TForm2.Activate_Parameter;
 begin
   CloseAlsa;
+  if pos(unavail, combobox1.Text) = 1 then exit;
   // Werte direkt aus Controls holen
   par_port := Ed_port.Text;
   par_netbuffer := ED_netbuffer.Text;
@@ -91,6 +94,8 @@ begin
   for x := 0 to configlist.Count - 1 do
     if configlist[x].StartsWith('name=' + au_name) then
     begin
+      configlist[0] := 'lastdevice=' + combobox1.Text;
+
       while configlist.Count < x + 9 do configlist.Add('');
 
       configlist[x + 2] := 'ip=' + Ed_ip.Text;
@@ -108,21 +113,36 @@ begin
         configlist[x + 8] := 'hide=1'
       else
         configlist[x + 8] := 'hide=0';
-
       break;
     end;
 end;
 
 procedure TForm2.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-  configlist.SaveToFile(configfilename);
+
 end;
 
 procedure TForm2.ComboBox1Change(Sender: TObject);
+var
+  sl:tstringlist;
 begin
-  LoadParameter(ComboBox1.Text);
-  Activate_Parameter;
+  if pos(unavail, combobox1.Text) = 1 then
+                              combobox1.Text := par_name
+  else
+  begin
+    closealsa;
+    LoadParameter(ComboBox1.Text);
+    Activate_Parameter;
+    sl:=tstringlist.Create;
+    sl.LoadFromFile(configfilename);
+    if  sl.Count>0 then
+      begin
+        sl[0]:= 'lastdevice=' + combobox1.Text;
+        sl.SaveToFile(configfilename);
+      end;
 end;
+end;
+
 
 procedure TForm2.Button2Click(Sender: TObject);
 begin
@@ -142,8 +162,7 @@ begin
     Exit;
   end;
 
-  if MessageDlg('Delete Device', 'Do you really want to delete "' + au_name + '"?' + LineEnding + 'If the device still exists, it will be recreated with default values on next start.',
-    mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  if MessageDlg('Delete Device', 'Do you really want to delete "' + au_name + '"?' + LineEnding + 'If the device still exists, it will be recreated with default values on next start.', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
   begin
     for i := 0 to configlist.Count - 1 do
     begin
@@ -224,26 +243,33 @@ var
 begin
   Result := False;
   for x := 0 to configlist.Count - 1 do
-    if keyresult('lastdevice', configlist[x]) > '' then
+  begin
+    devicelastused := keyresult('lastdevice', configlist[x]);
+    if (devicelastused > '') and (pos(unavail, devicelastused) <> 1) then
     begin
-      devicelastused := keyresult('lastdevice', configlist[x]);
       Result := LoadParameter(devicelastused);
       break;
     end;
+  end;
 end;
+
+
 
 function TForm2.LoadParameterFirstSet: boolean;
 var
   devicefirstset: string;
   x: integer;
 begin
+  Result := False;
   for x := 0 to configlist.Count - 1 do
-    if keyresult('name', configlist[x]) > '' then
+  begin
+    devicefirstset := keyresult('name', configlist[x]);
+    if (devicefirstset > '') and ((pos(unavail, devicefirstset) <> 1)) then
     begin
-      devicefirstset := keyresult('name', configlist[x]);
       Result := LoadParameter(devicefirstset);
       break;
     end;
+  end;
 end;
 
 function read_entry(const s: string): string;
@@ -290,8 +316,9 @@ procedure TForm2.FillALSADevices;
 var
   AList: TStringList;
   OutputStr: string;
-  i: integer;
-  item: string;
+  i, x, n, p: integer;
+  item, device: string;
+  pcm: PPsnd_pcm_t;
 begin
   ComboBox1.Items.Clear;
   AList := TStringList.Create;
@@ -304,7 +331,7 @@ begin
         item := read_entry(AList[i]);
         if item > '' then
         begin
-          ComboBox1.Items.Add(item);
+          ComboBox1.Items.Add(trim(item));
           if pos('name=' + item, configlist.Text) = 0 then
           begin
             configlist.Add('');
@@ -323,31 +350,45 @@ begin
   finally
     AList.Free;
   end;
+
+
+  // check devices
+  for x := combobox1.Items.Count - 1 downto 0 do
+  begin
+    p := pos(' ', combobox1.items[x]);
+    if p = 0 then  device := combobox1.items[x]
+    else
+      device := trim(copy(combobox1.items[x], 1, p - 1));
+
+    n := snd_pcm_open(@pcm, PChar(device), SND_PCM_STREAM_PLAYBACK, 0);
+    if n <> 0 then
+    begin
+      combobox1.Items[x] := unavail + combobox1.Items[x];
+    end
+    else
+    begin
+      snd_pcm_drain(pcm);              // drain any remaining samples
+      snd_pcm_close(pcm);
+      pcm := nil;
+    end;
+  end;
 end;
 
-procedure TForm2.FormShow(Sender: TObject);
-begin
-  FillALSADevices;
-end;
 
 procedure TForm2.FormCreate(Sender: TObject);
 begin
-  configfilename := GetAppConfigFile(false);                 //oid application.ExeName + '.conf';
+  configfilename := GetAppConfigFile(False);                 //oid application.ExeName + '.conf';
   configlist := TStringList.Create;
   if fileexists(configfilename) then
     configlist.LoadFromFile(configfilename)
   else
   begin
-    configlist.Add('lastdevice=');
+    configlist.Add('lastdevice=');         // kein lastdevice
     configlist.SaveToFile(configfilename);
   end;
-
   FillALSADevices;
-  configlist.SaveToFile(configfilename);
-
   if not LoadParameterLastUsed then
     LoadParameterFirstSet;
-
   Activate_Parameter;
 
   receiverthread := Treceiverthread.Create(False);

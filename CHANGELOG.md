@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.6] – 2025-10-14
+### Fixed
+- Selection of an unavailable audio device could completely prevent a restart.
+- Unavailable devices can no longer be selected.
+- During startup, all devices are checked for availability.
+- Silence-based auto-shutdown has been removed.
+
 ## [1.0.5] – 2025-09-23
 ### Fixed
 - Port setting: default value 5010 and alternative configurations now work correctly.

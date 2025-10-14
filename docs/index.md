@@ -16,10 +16,6 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 * Receives **stereo audio over UDP** (e.g., RTP stream) with selectable audio output: 3.5 mm jack, HDMI, USB, and more (choose one device at a time)
 * Direct **ALSA audio output** for minimal delay (PipeWire ALSA bridge supported)
 * Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm**
-* **Automatic detection** of incoming packets:
-
-  * Packets arrive → audio plays instantly
-  * No or silent packets for 5 seconds → audio output stops
 * **No codec** → uncompressed audio, maximum quality, minimal processing delay
 * On startup, the window is visible
 * If the “Start Minimized” checkbox is selected, the application will start minimized
