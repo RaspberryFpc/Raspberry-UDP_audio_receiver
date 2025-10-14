@@ -320,14 +320,15 @@ begin
 
       frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
       if frames < 0 then
+        begin
         frames := snd_pcm_recover(pcm, frames, 0); // try to recover from any error
-      received := 0;
+        end;
     end;
 
 
 
       peakleft := 0;
-       peakright := 0;
+      peakright := 0;
 
       for y := 3 to (received - 12) div 4 - 1 do
       begin

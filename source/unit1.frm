@@ -7,14 +7,14 @@ object Form1: TForm1
   ClientHeight = 61
   ClientWidth = 346
   Position = poDesktopCenter
-  LCLVersion = '8.6'
+  LCLVersion = '8.7'
   OnClose = FormClose
   OnCreate = FormCreate
   object Label1: TLabel
     Left = 188
-    Height = 22
+    Height = 23
     Top = 11
-    Width = 47
+    Width = 49
     Caption = 'Label1'
   end
   object Button1: TButton
@@ -28,9 +28,9 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 10
-    Height = 22
+    Height = 23
     Top = 11
-    Width = 177
+    Width = 176
     Caption = 'in Alsa buffered samples:'
   end
   object SpeedButton1: TSpeedButton
