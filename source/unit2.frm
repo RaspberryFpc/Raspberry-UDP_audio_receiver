@@ -6,13 +6,13 @@ object Form2: TForm2
   Caption = 'UDP player settings'
   ClientHeight = 321
   ClientWidth = 401
-  LCLVersion = '8.6'
+  LCLVersion = '8.7'
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   object Ed_port: TEdit
     Left = 183
-    Height = 32
+    Height = 33
     Top = 102
     Width = 136
     Alignment = taCenter
@@ -21,7 +21,7 @@ object Form2: TForm2
   end
   object Ed_netbuffer: TEdit
     Left = 183
-    Height = 32
+    Height = 33
     Top = 132
     Width = 136
     Alignment = taCenter
@@ -30,7 +30,7 @@ object Form2: TForm2
   end
   object Ed_freq: TEdit
     Left = 183
-    Height = 32
+    Height = 33
     Top = 162
     Width = 136
     Alignment = taCenter
@@ -39,7 +39,7 @@ object Form2: TForm2
   end
   object Ed_lat: TEdit
     Left = 183
-    Height = 32
+    Height = 33
     Top = 192
     Width = 136
     Alignment = taCenter
@@ -49,9 +49,9 @@ object Form2: TForm2
   end
   object CBByteOrder: TCheckBox
     Left = 8
-    Height = 27
+    Height = 28
     Top = 232
-    Width = 244
+    Width = 248
     Caption = 'Swap Byte Order (Endianness)'
     TabOrder = 4
   end
@@ -93,7 +93,7 @@ object Form2: TForm2
   end
   object Ed_ip: TEdit
     Left = 183
-    Height = 32
+    Height = 33
     Top = 72
     Width = 136
     Alignment = taCenter
@@ -112,9 +112,9 @@ object Form2: TForm2
   end
   object CBHide: TCheckBox
     Left = 8
-    Height = 27
+    Height = 28
     Top = 256
-    Width = 143
+    Width = 142
     Caption = 'Start minimized'
     TabOrder = 6
   end
@@ -129,10 +129,10 @@ object Form2: TForm2
   end
   object ComboBox1: TComboBox
     Left = 8
-    Height = 32
+    Height = 33
     Top = 24
     Width = 384
-    ItemHeight = 28
+    ItemHeight = 29
     Style = csSimple
     TabOrder = 7
     Text = 'hw:'

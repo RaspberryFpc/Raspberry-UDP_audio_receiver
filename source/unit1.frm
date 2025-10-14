@@ -1,10 +1,10 @@
 object Form1: TForm1
   Left = 242
-  Height = 61
+  Height = 67
   Top = 158
   Width = 346
   Caption = 'UDP player'
-  ClientHeight = 61
+  ClientHeight = 67
   ClientWidth = 346
   Position = poDesktopCenter
   LCLVersion = '8.7'

@@ -115,6 +115,7 @@ begin
         configlist[x + 8] := 'hide=0';
       break;
     end;
+   configlist.SaveToFile(configfilename);
 end;
 
 procedure TForm2.FormClose(Sender: TObject; var CloseAction: TCloseAction);
