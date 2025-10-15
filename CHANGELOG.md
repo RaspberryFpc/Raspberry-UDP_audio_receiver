@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project are documented in this file.
+## [1.0.8] – 2025-10-14
+### Fixed
+- recovering of frames improved
+
 
 ## [1.0.6] – 2025-10-14
 ### Fixed
