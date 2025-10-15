@@ -319,10 +319,17 @@ begin
        snd_pcm_delay(pcm, @delay);
 
       frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
-      if frames < 0 then
-        begin
-        frames := snd_pcm_recover(pcm, frames, 0); // try to recover from any error
-        end;
+       if frames < 0 then
+begin
+  frames := snd_pcm_recover(pcm, frames, 0);
+  if frames >= 0 then
+    frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
+end;
+
+
+
+
+
     end;
 
 
