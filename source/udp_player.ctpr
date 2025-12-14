@@ -24,6 +24,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="lz_CustomDrawnDsg"/>
+      </Item>
+      <Item>
         <PackageName Value="adLCL"/>
       </Item>
     </RequiredPackages>
@@ -61,6 +64,11 @@
       <IncludeFiles Value="$(ProjOutDir)"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
     <Linking>
       <Debugging>
         <UseExternalDbgSyms Value="True"/>

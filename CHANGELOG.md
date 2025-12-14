@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project are documented in this file.
+
+## [1.0.9] – 2025-12-14
+### Removed
+- Removed silence handling for resynchronisation – no longer required.
+
+### Added
+- In the unlikely case of a missing audio block, the last valid block is repeated up to five times to prevent audible dropouts.
+
+
 ## [1.0.8] – 2025-10-14
 ### Fixed
 - recovering of frames improved

@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, ComCtrls, dynlibs, Sockets, UnixType, pthreads, unit2, inifiles;
+  Buttons, ComCtrls, Spin, dynlibs, Sockets, UnixType,
+  pthreads, unit2, inifiles;
 
 type
   TClassPriority = (cprOther, cprFIFO, cprRR);
@@ -103,13 +104,22 @@ procedure as_Unload();     // unload and frees the lib from memory
 
 
 var
+
   par_name, par_netbuffer, par_port, par_ip, par_freq, par_latency: string;
   par_byteorder, par_hide: boolean;
-
+  Dpeakleft, Dpeakright, displaypeakleft, displaypeakright,displaypeakL,displaypeakR: smallint;
+  peakl: smallint;
+  peakr: smallint;
+  blockpeakL, blockpeakR: integer;
+  rampleft, rampright: smallint;
+  nc:integer;
 
   Form1: TForm1;
   ReceiverThread: TReceiverThread;
   delay: cint;
+  framecount:integer;
+  gain:double;
+
 
 const
   version = '1.0.6';
@@ -127,9 +137,8 @@ var
   sockaddr: TInetSockAddr;
   frames, n: integer;
   res: boolean;
-  timercounter: word;
-  peakleft, peakright: integer;
-  DisplayPeakL, DisplayPeakR: integer;
+
+
 
 
 function SetThreadPriority(aThreadID: TThreadID; class_priority: TClassPriority; sched_priority: integer): boolean;
@@ -223,6 +232,7 @@ end;
 
 
 
+
 procedure TForm1.SpeedButton1Click(Sender: TObject);
 begin
   form2.showmodal;
@@ -246,31 +256,104 @@ end;
 
 
 type
-  double_smallints = record
-    L: smallint;
-    R: smallint;
+  double_smallints = packed record
+    L, R: smallint;
   end;
 
-threadvar
-  audiobuffer: array[0..4095] of byte;
-  swapbuffer: array [0..2047] of word absolute audiobuffer;
-  Framebuffer: array [0..1023] of double_smallints absolute audiobuffer;
+function GetRTPHeaderSize(const Buf: pbyte; BufLen: integer): integer;
+var
+  Version, CC: byte;
+  XBit: boolean;
+  ExtLenWords: word;
+begin
+  // Minimalgröße prüfen
+  if BufLen < 12 then
+    Exit(0);
 
+  // Erste Byte enthält Version (2 Bits), P, X, CC
+  Version := (Buf[0] shr 6) and $03;  // Version
+  if Version <> 2 then
+    Exit(0); // Ungültige RTP-Version
+
+  XBit := ((Buf[0] and $10) <> 0);    // 5. Bit = X
+  CC := Buf[0] and $0F;               // untere 4 Bits = CSRC Count
+
+  // Startgröße = 12 Bytes + CSRC-Liste
+  Result := 12 + CC * 4;
+
+  // Wenn Extension gesetzt, zusätzliche 4 + N*4 Bytes
+  if XBit then
+  begin
+    if BufLen < Result + 4 then
+      Exit(0); // Puffer zu klein für Extension-Header
+    // Extension-Header: 2 Bytes Type + 2 Bytes Length in 32-Bit-Worten
+    ExtLenWords := (Buf[Result + 2] shl 8) or Buf[Result + 3];
+    Result := Result + 4 + ExtLenWords * 4;
+  end;
+
+  // Optional: prüfen, dass Result <= BufLen
+  if Result > BufLen then
+    Result := BufLen;
+end;
+
+
+
+procedure DumpFirstBytesToFile(const Buf: array of byte; Len: integer; const Filename: string);
+var
+  i, Max: integer;
+  SL: TStringList;
+begin
+  Max := Len;
+  if Max > 16 then Max := 16;
+
+  SL := TStringList.Create;
+  try
+    // Hex-Ausgabe
+    SL.Add('First ' + IntToStr(Max) + ' bytes:');
+    for i := 0 to Max - 1 do
+      SL[0] := SL[0] + IntToHex(Buf[i], 2) + ' ';
+
+    // Bit-Felder von Byte 0
+    if Max >= 1 then
+    begin
+      SL.Add('Byte 0: ' + IntToHex(Buf[0], 2));
+      SL.Add(' Version (bits 7-6): ' + IntToStr((Buf[0] shr 6) and $03));
+      SL.Add(' Padding (bit 5): ' + IntToStr((Buf[0] shr 5) and 1));
+      SL.Add(' Extension (bit 4): ' + IntToStr((Buf[0] shr 4) and 1));
+      SL.Add(' CSRC Count (bits 3-0): ' + IntToStr(Buf[0] and $0F));
+    end;
+
+    // In Datei schreiben
+    SL.SaveToFile(Filename);
+  finally
+    SL.Free;
+  end;
+end;
 
 procedure TReceiverThread.Execute;
+const
+  buffersize = 4096;
+  framebuffersize = buffersize div 4;
+  swapbuffersize = buffersize div 2;
+
 var
+  receivebuffer: array[0..buffersize - 1] of byte;
+  framebuffer: array[0..framebuffersize - 1] of double_smallints absolute receivebuffer;
+  swapbuffer: array[0..swapbuffersize - 1] of word absolute receivebuffer;
+  bytesreceived,lastreceived: integer;
   bufsize: integer = $8000;// 256 KB
   port: word;
   lport: longint;
   x, y: integer;
   timeout: TTimeVal;
-  //  alsarun: boolean;
-  sound: boolean;
-  peak: integer;
-begin
+  minL, maxL, minR, maxR, v: smallint;
+  headersize: integer;
+  bufferduplicated:integer;
+
+  begin
   res := SetThreadPriority(getcurrentthreadid, cprrr, 22);
 
-  //  openalsa;
+
   sock := fpSocket(AF_INET, SOCK_DGRAM, 0);
   if sock < 0 then
   begin
@@ -290,8 +373,8 @@ begin
 
   fpsetsockopt(sock, SOL_SOCKET, SO_RCVBUF, @bufsize, SizeOf(bufsize));
 
-  timeout.tv_sec := 2;  // Timeout auf 2 Sekunden setzen
-  timeout.tv_usec := 0;
+  timeout.tv_sec := 0;  // Timeout auf 1 ms setzen
+  timeout.tv_usec := 1000;
   fpsetsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, @timeout, SizeOf(timeout));
 
 
@@ -303,103 +386,110 @@ begin
 
 
   repeat
-    received := fpRecv(sock, @audiobuffer, SizeOf(audiobuffer), 0); // in samples
+    received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0); // in samples
 
-    if assigned(pcm) and   (received>0) then
+    headersize := GetRTPHeaderSize(@receivebuffer, received);
+
+    if assigned(pcm) then
+      if (received > 0) then
     begin
+       snd_pcm_delay(pcm, @delay);
+       interlockedexchange(framecount,delay);
 
-    if par_byteorder then
+      lastreceived:=received;
+      if par_byteorder then
       begin
-        for x := 0 to (received div 2) - 1 do
+        for x := headersize shr 1 to (received shr 1) - 1 do     // headersize 12
           swapbuffer[x] := SwapEndian(swapbuffer[x]);
       end;
 
+      // Initialisierung
+      minL := 0;
+      maxL := 0;
+      minR := 0;
+      maxR := 0;
 
-      //beim 6.sample anfangen für links
-       snd_pcm_delay(pcm, @delay);
-
-      frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
-       if frames < 0 then
-begin
-  frames := snd_pcm_recover(pcm, frames, 0);
-  if frames >= 0 then
-    frames := snd_pcm_writei(pcm, @audiobuffer[12], (received - 12) div 4);
-end;
-
-
-
-
-
-    end;
-
-
-
-      peakleft := 0;
-      peakright := 0;
-
-      for y := 3 to (received - 12) div 4 - 1 do
+      // Schleife über alle Samples
+      for y := headersize shr 2 to (received shr 2) - 1 do
       begin
-        if Framebuffer[y].L < 0 then
-          peak := -integer(Framebuffer[y].L)   // erst in Integer casten
-        else
-          peak := Framebuffer[y].L;
-        if peak > peakleft then
-          peakleft := peak;
+        v := Framebuffer[y].L;
+        if v < minL then
+          minL := v; // größter Ausschlag nach unten
+        if v > maxL then
+          maxL := v; // größter Ausschlag nach oben
 
-        if Framebuffer[y].R < 0 then
-          peak := -integer(Framebuffer[y].R)
-        else
-          peak := Framebuffer[y].R;
 
-        if peak > peakright then
-          peakright := peak;
+        v := Framebuffer[y].R;
+        if v < minR then
+          minR := v;
+        if v > maxR then
+          maxR := v;
       end;
 
- //   sound := (peakleft > 0) or (peakright > 0);
 
+      if minl < -32767 then minl := 32767;
+      if minr < -32767 then minr := 32767;
+      minl:=-minl;
+      minr:=-minr;
+
+      if minl > maxl then  maxl := minl;
+      if minr > maxr then  maxr :=minr;
+
+       // für display
+      if displaypeakL < maxl then displaypeakL:=maxl;
+      if displaypeakR < maxR then displaypeakR:=maxr;
+
+
+      frames := snd_pcm_writei(pcm, @Framebuffer[3], (received - 12) div 4);
+
+      if frames < 0 then
+      begin
+        frames := snd_pcm_recover(pcm, frames, 0);
+        if frames >= 0 then
+          frames := snd_pcm_writei(pcm, @Framebuffer[3], (received - 12) div 4);
+      end;
+      bufferduplicated:=0;
+    end else
+    begin
+      snd_pcm_delay(pcm, @delay);
+      if (delay < 500) and (bufferduplicated<5) then
+           begin
+           frames := snd_pcm_writei(pcm, @Framebuffer[3], (lastreceived - 12) div 4);
+           if frames < 0 then
+              begin
+               frames := snd_pcm_recover(pcm, frames, 0);
+               if frames >= 0 then
+                frames := snd_pcm_writei(pcm, @Framebuffer[3], (lastreceived - 12) div 4);
+              end;
+           inc(bufferduplicated);
+         end;
+      end;
 
   until terminated;
+
   closealsa;
   closesocket(sock);
 end;
 
-
-
-
 procedure VUMeter;
 const
-  decayStep = $8000 div 200; // für 4s bei 20ms
-var
-  peak: integer;
+  decayStep = $8000 div 100;
 begin
+  Dec(displaypeakl, decayStep);
+  Dec(displaypeakr, decayStep);
 
-  // atomar auslesen und zurücksetzen
-  peak := InterlockedExchange(peakleft, 0);
-  Dec(DisplayPeakL, decayStep);
-  if DisplayPeakL < peak then DisplayPeakL := peak;
+  if displaypeakl<0 then displaypeakl:=0;
+  if displaypeakr<0 then displaypeakr:=0;
 
-  peak := InterlockedExchange(Peakright, 0);
-  Dec(DisplayPeakR, decayStep);
-  if DisplayPeakR < peak then DisplayPeakR := peak;
-
-  peakleft := 0;
-  Peakright := 0;
-
-  form1.Progressbar1.Position := displayPeakL;
-  form1.Progressbar2.Position := displayPeakR;
-
+  form1.Progressbar1.Position := displaypeakl;
+  form1.Progressbar2.Position := displaypeakr;
 end;
-
-
-
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-  Inc(timercounter);
-  if timercounter mod 25 = 0 then label1.Caption := IntToStr(delay);
-  VUMeter;
+inc(nc);
+if nc mod 5 = 0 then label1.Caption:=inttostr(framecount);
+VUMeter;
 end;
-
-
 
 end.

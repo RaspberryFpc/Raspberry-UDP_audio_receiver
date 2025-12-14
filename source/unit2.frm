@@ -1,17 +1,17 @@
 object Form2: TForm2
   Left = 455
-  Height = 321
+  Height = 368
   Top = 43
-  Width = 401
+  Width = 590
   Caption = 'UDP player settings'
-  ClientHeight = 321
-  ClientWidth = 401
+  ClientHeight = 368
+  ClientWidth = 590
   LCLVersion = '8.7'
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   object Ed_port: TEdit
-    Left = 183
+    Left = 151
     Height = 33
     Top = 102
     Width = 136
@@ -20,7 +20,7 @@ object Form2: TForm2
     Text = '0'
   end
   object Ed_netbuffer: TEdit
-    Left = 183
+    Left = 151
     Height = 33
     Top = 132
     Width = 136
@@ -29,18 +29,18 @@ object Form2: TForm2
     Text = '10000'
   end
   object Ed_freq: TEdit
-    Left = 183
+    Left = 440
     Height = 33
-    Top = 162
+    Top = 72
     Width = 136
     Alignment = taCenter
     TabOrder = 2
     Text = '48000'
   end
   object Ed_lat: TEdit
-    Left = 183
+    Left = 440
     Height = 33
-    Top = 192
+    Top = 104
     Width = 136
     Alignment = taCenter
     AutoSelect = False
@@ -56,7 +56,7 @@ object Form2: TForm2
     TabOrder = 4
   end
   object Label1: TLabel
-    Left = 40
+    Left = 8
     Height = 22
     Top = 102
     Width = 141
@@ -65,7 +65,7 @@ object Form2: TForm2
     Caption = 'Port'
   end
   object Label2: TLabel
-    Left = 40
+    Left = 8
     Height = 22
     Top = 132
     Width = 141
@@ -74,25 +74,25 @@ object Form2: TForm2
     Caption = 'Size networkbuffer'
   end
   object Label3: TLabel
-    Left = 40
+    Left = 304
     Height = 22
-    Top = 162
+    Top = 80
     Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Frequency Hz'
   end
   object Label4: TLabel
-    Left = 40
+    Left = 304
     Height = 22
-    Top = 196
+    Top = 114
     Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Alsa Latency µs'
   end
   object Ed_ip: TEdit
-    Left = 183
+    Left = 151
     Height = 33
     Top = 72
     Width = 136
@@ -102,7 +102,7 @@ object Form2: TForm2
     Text = '0.0.0.0'
   end
   object Label5: TLabel
-    Left = 40
+    Left = 8
     Height = 22
     Top = 75
     Width = 141
@@ -164,5 +164,41 @@ object Form2: TForm2
     Caption = 'Delete'
     TabOrder = 10
     OnClick = Button3Click
+  end
+  object Label7: TLabel
+    Left = 8
+    Height = 22
+    Top = 168
+    Width = 141
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'min Level'
+  end
+  object Label8: TLabel
+    Left = 304
+    Height = 22
+    Top = 168
+    Width = 141
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'max level'
+  end
+  object Label9: TLabel
+    Left = 8
+    Height = 22
+    Top = 192
+    Width = 141
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'maxgain'
+  end
+  object Label10: TLabel
+    Left = 304
+    Height = 22
+    Top = 196
+    Width = 141
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'reaction-delay'
   end
 end

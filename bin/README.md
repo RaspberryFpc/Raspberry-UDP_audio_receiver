@@ -27,12 +27,11 @@ It outputs directly to **ALSA** (also compatible with **PipeWire** via ALSA emul
 
 ## 💡 Example Test Setup
 
-* **Sender**: Raspberry Pi 4 streaming YouTube audio via Wi-Fi
-* **Receiver**: Raspberry Pi 4 connected via Ethernet
+* **Sender**: Raspberry Pi 4 or pi 5 streaming YouTube audio via Wi-Fi
+* **Receiver**: Raspberry Pi 4 or pi 5 connected via Ethernet
 * **Output**: 3.5 mm jack → HiFi amplifier, or HDMI/USB audio
 
-Result: Stable low-latency playback in a typical home network.
-
+Result: Stable low-latency playback on a typical home network, even while streaming video via RealVNC.
 ---
 
 ## ▶️ Usage
@@ -64,14 +63,9 @@ Start the player:
 ```bash
 ./udp_player
 ```
-
-A window appears and starts playback automatically when UDP packets arrive. Select the desired audio output in the settings window.
-
-**Silence Handling:**
-
-* If no audio packets arrive for 5 seconds, ALSA stops and releases the output.
-* Playback resumes automatically when new packets arrive.
-
+A window appears and starts playback automatically when UDP packets arrive. 
+Select the desired audio output in the settings window.
+Repeats the last valid audio block up to five times if new data is missing, preventing audible dropouts.
 ---
 
 ## ⚙️ Settings Description

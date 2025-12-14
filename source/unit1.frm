@@ -1,11 +1,11 @@
 object Form1: TForm1
   Left = 242
-  Height = 67
+  Height = 69
   Top = 158
-  Width = 346
+  Width = 401
   Caption = 'UDP player'
-  ClientHeight = 67
-  ClientWidth = 346
+  ClientHeight = 69
+  ClientWidth = 401
   Position = poDesktopCenter
   LCLVersion = '8.7'
   OnClose = FormClose
@@ -18,9 +18,9 @@ object Form1: TForm1
     Caption = 'Label1'
   end
   object Button1: TButton
-    Left = 248
+    Left = 256
     Height = 25
-    Top = 8
+    Top = 9
     Width = 53
     Caption = 'close'
     TabOrder = 0
@@ -34,9 +34,9 @@ object Form1: TForm1
     Caption = 'in Alsa buffered samples:'
   end
   object SpeedButton1: TSpeedButton
-    Left = 309
+    Left = 328
     Height = 25
-    Top = 8
+    Top = 9
     Width = 30
     Glyph.Data = {
       36090000424D3609000000000000360000002800000018000000180000000100
@@ -122,7 +122,7 @@ object Form1: TForm1
     Left = 8
     Height = 8
     Top = 40
-    Width = 323
+    Width = 387
     Color = clLime
     Max = 32768
     ParentColor = False
@@ -132,12 +132,12 @@ object Form1: TForm1
     Left = 8
     Height = 8
     Top = 48
-    Width = 323
+    Width = 387
     Max = 32768
     TabOrder = 2
   end
   object Timer1: TTimer
-    Interval = 20
+    Interval = 40
     OnTimer = Timer1Timer
     Left = 68
   end
