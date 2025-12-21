@@ -1,10 +1,10 @@
 object Form2: TForm2
   Left = 455
-  Height = 368
+  Height = 282
   Top = 43
   Width = 590
   Caption = 'UDP player settings'
-  ClientHeight = 368
+  ClientHeight = 282
   ClientWidth = 590
   LCLVersion = '8.7'
   OnClose = FormClose
@@ -48,9 +48,9 @@ object Form2: TForm2
     Text = '28000'
   end
   object CBByteOrder: TCheckBox
-    Left = 8
+    Left = 96
     Height = 28
-    Top = 232
+    Top = 184
     Width = 248
     Caption = 'Swap Byte Order (Endianness)'
     TabOrder = 4
@@ -111,9 +111,9 @@ object Form2: TForm2
     Caption = 'IP address'
   end
   object CBHide: TCheckBox
-    Left = 8
+    Left = 96
     Height = 28
-    Top = 256
+    Top = 208
     Width = 142
     Caption = 'Start minimized'
     TabOrder = 6
@@ -128,7 +128,7 @@ object Form2: TForm2
     Caption = 'Output device'
   end
   object ComboBox1: TComboBox
-    Left = 8
+    Left = 104
     Height = 33
     Top = 24
     Width = 384
@@ -139,66 +139,30 @@ object Form2: TForm2
     OnChange = ComboBox1Change
   end
   object Button1: TButton
-    Left = 272
+    Left = 360
     Height = 25
-    Top = 288
+    Top = 240
     Width = 112
     Caption = 'Save changes'
     TabOrder = 8
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 144
+    Left = 232
     Height = 25
-    Top = 288
+    Top = 240
     Width = 112
     Caption = 'Test changes'
     TabOrder = 9
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 16
+    Left = 104
     Height = 25
-    Top = 288
+    Top = 240
     Width = 112
     Caption = 'Delete'
     TabOrder = 10
     OnClick = Button3Click
-  end
-  object Label7: TLabel
-    Left = 8
-    Height = 22
-    Top = 168
-    Width = 141
-    Alignment = taCenter
-    AutoSize = False
-    Caption = 'min Level'
-  end
-  object Label8: TLabel
-    Left = 304
-    Height = 22
-    Top = 168
-    Width = 141
-    Alignment = taCenter
-    AutoSize = False
-    Caption = 'max level'
-  end
-  object Label9: TLabel
-    Left = 8
-    Height = 22
-    Top = 192
-    Width = 141
-    Alignment = taCenter
-    AutoSize = False
-    Caption = 'maxgain'
-  end
-  object Label10: TLabel
-    Left = 304
-    Height = 22
-    Top = 196
-    Width = 141
-    Alignment = taCenter
-    AutoSize = False
-    Caption = 'reaction-delay'
   end
 end

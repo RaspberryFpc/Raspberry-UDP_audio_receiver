@@ -22,15 +22,11 @@ type
     Ed_lat: TEdit;
     Ed_ip: TEdit;
     Label1: TLabel;
-    Label10: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
-    Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -40,7 +36,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FillALSADevices;
     procedure Activate_Parameter;
-
     function LoadParameter(au_name: string): boolean;
     function LoadParameterLastUsed: boolean;
     function LoadParameterFirstSet: boolean;

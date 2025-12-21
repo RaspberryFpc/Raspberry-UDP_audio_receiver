@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.10] – 2025-12-21
+### Added
+- New low-CPU VU meter implementation.
+- GUI now shows whether a stream is connected.
+- GUI now indicates whether the audio output is ready.
+- GUI displays the number of buffer duplications (not audible).
+
+### Improved
+- Audio thread priority increased to 40 for better real-time performance.
+- Buffer duplication during underruns optimized to further reduce audible artifacts.
+
+
 ## [1.0.9] – 2025-12-14
 ### Removed
 - Removed silence handling for resynchronisation – no longer required.

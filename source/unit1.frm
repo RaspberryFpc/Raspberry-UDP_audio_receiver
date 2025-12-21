@@ -1,42 +1,42 @@
 object Form1: TForm1
   Left = 242
-  Height = 69
+  Height = 99
   Top = 158
   Width = 401
   Caption = 'UDP player'
-  ClientHeight = 69
+  ClientHeight = 99
   ClientWidth = 401
   Position = poDesktopCenter
   LCLVersion = '8.7'
   OnClose = FormClose
   OnCreate = FormCreate
   object Label1: TLabel
-    Left = 188
+    Left = 184
     Height = 23
-    Top = 11
+    Top = 8
     Width = 49
     Caption = 'Label1'
   end
   object Button1: TButton
     Left = 256
     Height = 25
-    Top = 9
+    Top = 8
     Width = 53
     Caption = 'close'
     TabOrder = 0
     OnClick = Button1Click
   end
   object Label2: TLabel
-    Left = 10
+    Left = 8
     Height = 23
-    Top = 11
+    Top = 8
     Width = 176
     Caption = 'in Alsa buffered samples:'
   end
   object SpeedButton1: TSpeedButton
     Left = 328
     Height = 25
-    Top = 9
+    Top = 8
     Width = 30
     Glyph.Data = {
       36090000424D3609000000000000360000002800000018000000180000000100
@@ -118,27 +118,45 @@ object Form1: TForm1
     ShowCaption = False
     OnClick = SpeedButton1Click
   end
-  object ProgressBar1: TProgressBar
+  object Label3: TLabel
     Left = 8
-    Height = 8
-    Top = 40
-    Width = 387
-    Color = clLime
-    Max = 32768
-    ParentColor = False
-    TabOrder = 1
+    Height = 23
+    Top = 24
+    Width = 134
+    Caption = 'Buffer duplications:'
   end
-  object ProgressBar2: TProgressBar
+  object Label4: TLabel
+    Left = 184
+    Height = 23
+    Top = 24
+    Width = 49
+    Caption = 'Label4'
+  end
+  object Label5: TLabel
     Left = 8
-    Height = 8
-    Top = 48
+    Height = 23
+    Top = 40
+    Width = 185
+    Caption = 'Audiostream disconnected'
+  end
+  object Label6: TLabel
+    Left = 214
+    Height = 23
+    Top = 40
+    Width = 144
+    Caption = 'Output device failure'
+  end
+  object PaintBoxVU: TPaintBox
+    Left = 8
+    Height = 17
+    Top = 72
     Width = 387
-    Max = 32768
-    TabOrder = 2
+    OnPaint = PaintBoxVUPaint
   end
   object Timer1: TTimer
-    Interval = 40
+    Interval = 30
     OnTimer = Timer1Timer
-    Left = 68
+    Left = 336
+    Top = 64
   end
 end
