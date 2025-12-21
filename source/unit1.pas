@@ -213,6 +213,9 @@ begin
       1,                         // resampling on/off
       StrToInt(par_Latency));                // latency (us)
   Result := n = 0;
+
+   if assigned(pcm) then form1.label6.Caption:='Audio device: OK' else form1.label6.Caption:='Audio device: failure';
+
 end;
 
 
@@ -223,6 +226,7 @@ begin
     snd_pcm_drain(pcm);              // drain any remaining samples
     snd_pcm_close(pcm);
     pcm := nil;
+    form1.label6.Caption:='Audio device: failure';
   end;
 end;
 
