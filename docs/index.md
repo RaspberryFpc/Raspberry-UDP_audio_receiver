@@ -31,11 +31,10 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 | **Audio Output Selection** | Choose the audio output device (3.5 mm jack, HDMI, USB, etc.). If no configuration exists for a device, a default configuration is created automatically at program start. Only one device can be selected at a time. |
 | **IP** | IP address to receive audio from. Use `0.0.0.0` to listen on all network interfaces. |
 | **Port** | UDP port for incoming audio. Default is `5010`. |
-| **Network Buffer** | Size of the receive buffer in bytes. Must be at least as large as a single sent audio block. |
 | **Frequency** | Audio sample rate in Hz (e.g., 48000). |
 | **Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 3000 for USB audio. |
 | **Swap Byte Order** | Enable this if the incoming audio uses a different byte order (big/little endian). |
-| **Hide Window** | If enabled, the application window remains minimized or hidden once audio starts. |
+| **Hide Window** | If enabled, the application window starts once audio starts. |
 | **Activate** | Immediately applies the current settings without saving them. |
 | **Save** | Saves the current settings to the configuration file for future use. |
 | **Delete Device** | Deletes the selected device configuration. If the device exists, it will be recreated with default values at the next program start. |
