@@ -32,7 +32,7 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 | **IP** | IP address to receive audio from. Use `0.0.0.0` to listen on all network interfaces. |
 | **Port** | UDP port for incoming audio. Default is `5010`. |
 | **Frequency** | Audio sample rate in Hz (e.g., 48000). |
-| **Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 3000 for USB audio. |
+| **Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 4000 for USB audio. |
 | **Swap Byte Order** | Enable this if the incoming audio uses a different byte order (big/little endian). |
 | **Hide Window** | If enabled, the application window starts once audio starts. |
 | **Activate** | Immediately applies the current settings without saving them. |
