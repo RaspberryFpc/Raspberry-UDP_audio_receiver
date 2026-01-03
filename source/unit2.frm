@@ -1,168 +1,169 @@
 object Form2: TForm2
   Left = 455
-  Height = 282
+  Height = 343
   Top = 43
-  Width = 590
+  Width = 442
   Caption = 'UDP player settings'
-  ClientHeight = 282
-  ClientWidth = 590
-  LCLVersion = '8.7'
-  OnClose = FormClose
+  ClientHeight = 343
+  ClientWidth = 442
+  Position = poDesktopCenter
+  LCLVersion = '8.8'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   object Ed_port: TEdit
-    Left = 151
-    Height = 33
-    Top = 102
+    Left = 9
+    Height = 25
+    Top = 252
     Width = 136
     Alignment = taCenter
+    AutoSize = False
+    AutoSelect = False
+    Font.Height = 16
+    ParentFont = False
     TabOrder = 0
     Text = '0'
   end
-  object Ed_netbuffer: TEdit
-    Left = 151
-    Height = 33
-    Top = 132
-    Width = 136
-    Alignment = taCenter
-    TabOrder = 1
-    Text = '10000'
-  end
   object Ed_freq: TEdit
-    Left = 440
-    Height = 33
-    Top = 72
+    Left = 153
+    Height = 25
+    Top = 197
     Width = 136
     Alignment = taCenter
-    TabOrder = 2
+    AutoSize = False
+    AutoSelect = False
+    Font.Height = 16
+    ParentFont = False
+    TabOrder = 1
     Text = '48000'
   end
   object Ed_lat: TEdit
-    Left = 440
-    Height = 33
-    Top = 104
+    Left = 296
+    Height = 25
+    Top = 197
     Width = 136
     Alignment = taCenter
+    AutoSize = False
     AutoSelect = False
-    TabOrder = 3
+    Font.Height = 16
+    ParentFont = False
+    TabOrder = 2
     Text = '28000'
   end
   object CBByteOrder: TCheckBox
-    Left = 96
-    Height = 28
-    Top = 184
-    Width = 248
+    Left = 176
+    Height = 21
+    Top = 237
+    Width = 209
     Caption = 'Swap Byte Order (Endianness)'
-    TabOrder = 4
+    TabOrder = 3
   end
   object Label1: TLabel
-    Left = 8
+    Left = 24
     Height = 22
-    Top = 102
-    Width = 141
+    Top = 229
+    Width = 85
     Alignment = taCenter
     AutoSize = False
     Caption = 'Port'
   end
-  object Label2: TLabel
-    Left = 8
-    Height = 22
-    Top = 132
-    Width = 141
-    Alignment = taCenter
-    AutoSize = False
-    Caption = 'Size networkbuffer'
-  end
   object Label3: TLabel
-    Left = 304
+    Left = 161
     Height = 22
-    Top = 80
+    Top = 173
     Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Frequency Hz'
   end
   object Label4: TLabel
-    Left = 304
+    Left = 292
     Height = 22
-    Top = 114
+    Top = 173
     Width = 141
     Alignment = taCenter
     AutoSize = False
     Caption = 'Alsa Latency µs'
   end
   object Ed_ip: TEdit
-    Left = 151
-    Height = 33
-    Top = 72
-    Width = 136
+    Left = 9
+    Height = 25
+    Top = 197
+    Width = 135
     Alignment = taCenter
+    AutoSize = False
     AutoSelect = False
-    TabOrder = 5
+    BidiMode = bdRightToLeftNoAlign
+    Font.Height = 16
+    ParentBidiMode = False
+    ParentFont = False
+    TabOrder = 4
     Text = '0.0.0.0'
   end
   object Label5: TLabel
-    Left = 8
+    Left = 33
     Height = 22
-    Top = 75
-    Width = 141
+    Top = 173
+    Width = 85
     Alignment = taCenter
     AutoSize = False
     Caption = 'IP address'
   end
   object CBHide: TCheckBox
-    Left = 96
-    Height = 28
-    Top = 208
-    Width = 142
+    Left = 176
+    Height = 21
+    Top = 252
+    Width = 121
     Caption = 'Start minimized'
-    TabOrder = 6
-  end
-  object Label6: TLabel
-    Left = 128
-    Height = 22
-    Top = 0
-    Width = 119
-    Alignment = taCenter
-    AutoSize = False
-    Caption = 'Output device'
-  end
-  object ComboBox1: TComboBox
-    Left = 104
-    Height = 33
-    Top = 24
-    Width = 384
-    ItemHeight = 29
-    Style = csSimple
-    TabOrder = 7
-    Text = 'hw:'
-    OnChange = ComboBox1Change
+    TabOrder = 5
   end
   object Button1: TButton
-    Left = 360
+    Left = 280
     Height = 25
-    Top = 240
-    Width = 112
-    Caption = 'Save changes'
-    TabOrder = 8
+    Top = 292
+    Width = 153
+    Caption = 'Save tested changes'
+    TabOrder = 6
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 232
+    Left = 144
     Height = 25
-    Top = 240
+    Top = 292
     Width = 112
     Caption = 'Test changes'
-    TabOrder = 9
+    TabOrder = 7
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 104
+    Left = 8
     Height = 25
-    Top = 240
+    Top = 292
     Width = 112
     Caption = 'Delete'
-    TabOrder = 10
+    TabOrder = 8
     OnClick = Button3Click
+  end
+  object CheckListBox1: TCheckListBox
+    Left = 9
+    Height = 136
+    Top = 32
+    Width = 424
+    ExtendedSelect = False
+    ItemHeight = 0
+    TabOrder = 9
+    TopIndex = -1
+    OnClickCheck = CheckListBox1ClickCheck
+  end
+  object Edit1: TEdit
+    Left = 9
+    Height = 25
+    Top = 8
+    Width = 424
+    AutoSize = False
+    AutoSelect = False
+    Font.Height = 16
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 10
   end
 end

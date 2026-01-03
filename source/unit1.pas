@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, ComCtrls, dynlibs, Sockets, UnixType,BaseUnix, Unix,
+  Buttons, ComCtrls, dynlibs, Sockets, UnixType, BaseUnix, Unix,
   pthreads, unit2;
 
 type
@@ -53,6 +53,9 @@ const
 procedure closealsa;
 function OpenAlsa: boolean;
 
+var
+   ConfigFileName:string;
+
 type
 
   { TForm1 }
@@ -72,6 +75,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure Label6Click(Sender: TObject);
     procedure PaintBoxVUPaint(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -111,11 +115,10 @@ procedure as_Unload();     // unload and frees the lib from memory
 
 
 var
-
-  par_name, par_netbuffer, par_port, par_ip, par_freq, par_latency: string;
+  par_name, par_device, par_port, par_ip, par_freq, par_latency: string;
   par_byteorder, par_hide: boolean;
- // Dpeakleft, Dpeakright, displaypeakleft, displaypeakright: smallint;
-  displaypeakL, displaypeakR:integer;
+  // Dpeakleft, Dpeakright, displaypeakleft, displaypeakright: smallint;
+  displaypeakL, displaypeakR: integer;
   peakl: smallint;
   peakr: smallint;
   blockpeakL, blockpeakR: integer;
@@ -125,15 +128,18 @@ var
   Form1: TForm1;
   ReceiverThread: TReceiverThread;
   delay: cint;
-  framecount,underruns: integer;
+  framecount, underruns: integer;
   gain: double;
 
-  VULeft, VURight: LongInt;        // aktueller Pegel
-  PeakLeft, PeakRight: LongInt;   // Peak-Hold
+  VULeft, VURight: longint;        // aktueller Pegel
+  PeakLeft, PeakRight: longint;   // Peak-Hold
+
+  stream_ok, audio_ok: integer;
+
 
 
 const
-  version = '1.0.10';
+  version = '1.0.12';
 
 
 implementation
@@ -161,6 +167,31 @@ begin
   ret := pthread_setschedparam(pthread_t(aThreadID), aPriority, @param);
   Result := (ret = 0);
 end;
+
+
+procedure NanoSleep(ns: int64);
+var
+  ts, rem: timespec;
+begin
+  ts.tv_sec := ns div 1000000000;
+  ts.tv_nsec := ns mod 1000000000;
+
+  while fpNanoSleep(@ts, @rem) <> 0 do
+    ts := rem;
+end;
+
+procedure MicroSleep(us: int64);
+var
+  ts, rem: timespec;
+begin
+  ts.tv_sec := us div 1000000;           // Sekunden
+  ts.tv_nsec := (us mod 1000000) * 1000; // Mikrosekunden → Nanosekunden
+
+  while fpNanoSleep(@ts, @rem) <> 0 do
+    ts := rem;
+end;
+
+
 
 function as_IsLoaded: boolean;
 begin
@@ -197,13 +228,10 @@ end;
 
 function OpenAlsa: boolean;
 var
-  device, au_name: string;   //'hw:0,0';             // name of sound device
-  p: integer;
+  device: string; //'hw:0,0';             // name of sound device
+  // p: integer;
 begin
-  p := pos(' ', par_name);
-  if p = 0 then  device := par_name
-  else
-    device := trim(copy(par_name, 1, p - 1));
+  device := par_device;
   Result := False;
   // load the library
   n := snd_pcm_open(@pcm, PChar(device), SND_PCM_STREAM_PLAYBACK, 0);
@@ -214,7 +242,9 @@ begin
       StrToInt(par_Latency));                // latency (us)
   Result := n = 0;
 
-   if assigned(pcm) then form1.label6.Caption:='Audio device: OK' else form1.label6.Caption:='Audio device: failure';
+  if assigned(pcm) then form1.label6.Caption := 'Audio device: OK'
+  else
+    form1.label6.Caption := 'Audio device: failure';
 
 end;
 
@@ -226,7 +256,7 @@ begin
     snd_pcm_drain(pcm);              // drain any remaining samples
     snd_pcm_close(pcm);
     pcm := nil;
-    form1.label6.Caption:='Audio device: failure';
+    form1.label6.Caption := 'Audio device: failure';
   end;
 end;
 
@@ -238,45 +268,51 @@ begin
   as_Load;
 end;
 
+procedure TForm1.Label6Click(Sender: TObject);
+begin
+
+end;
+
 
 
 procedure TForm1.PaintBoxVUPaint(Sender: TObject);
 const
   MAX_LEVEL = 32767;
-  PEAK_DECAY = 300;
-  border=2;
-var L, R: Integer;
-  wL, wR: Integer;
-  pL, pR: Integer;
-  h, mid: Integer;
-
-  begin
-    h := PaintBoxVU.Height; mid := h div 2; // aktuelle Werte holen (atomar)
-    L := InterlockedExchange(vuleft, vuleft);
-    R := InterlockedExchange(vuright,vuright);
-
-
-    PeakLeft := PeakLeft - PEAK_DECAY;
-    PeakRight := PeakRight - PEAK_DECAY;
-    if L > PeakLeft then PeakLeft := L ;
-    if R > PeakRight then PeakRight := R;
-
-    pL := (PaintBoxVU.Width * PeakLeft) div MAX_LEVEL;
-    pR := (PaintBoxVU.Width * PeakRight) div MAX_LEVEL;
-    with PaintBoxVU.Canvas do
+  PEAK_DECAY = 200;
+  border = 2;
+var
+  L, R: integer;
+  wL, wR: integer;
+  pL, pR: integer;
+  h, mid: integer;
 begin
+  h := PaintBoxVU.Height;
+  mid := h div 2; // aktuelle Werte holen (atomar)
+  L := InterlockedExchange(vuleft, vuleft);
+  R := InterlockedExchange(vuright, vuright);
+
+
+  PeakLeft := PeakLeft - PEAK_DECAY;
+  PeakRight := PeakRight - PEAK_DECAY;
+  if L > PeakLeft then PeakLeft := L;
+  if R > PeakRight then PeakRight := R;
+
+  pL := (PaintBoxVU.Width * PeakLeft) div MAX_LEVEL;
+  pR := (PaintBoxVU.Width * PeakRight) div MAX_LEVEL;
+  with PaintBoxVU.Canvas do
+  begin
     // Hintergrund
     Brush.Color := clBlack;
     FillRect(PaintBoxVU.ClientRect);
     // LEFT
     Brush.Color := clLime;
-   // FillRect(Rect(0, 0, pL, mid - 2));
-     FillRect(Rect(0, border, pL, mid - border div 2));
+    // FillRect(Rect(0, 0, pL, mid - 2));
+    FillRect(Rect(0, border, pL, mid - border div 2));
     // RIGHT
     Brush.Color := clAqua;
-    FillRect(Rect(0, mid + border div 2, pR, h-border));
-end;
+    FillRect(Rect(0, mid + border div 2, pR, h - border));
   end;
+end;
 
 
 
@@ -355,15 +391,15 @@ var
   framebuffer: array[0..framebuffersize - 1] of double_smallints absolute receivebuffer;
   swapbuffer: array[0..swapbuffersize - 1] of word absolute receivebuffer;
   lastreceived, received: integer;
-  bufsize: integer = $8000;// 256 KB
+  bufsize: integer = $10000;
   port: word;
   lport: longint;
   timeout: TTimeVal;
   minL, maxL, minR, maxR, v: smallint;
   headersize: integer;
   bufferduplicated: integer;
-  flags:longint;
-  bytesAvailable,d,empfang:integer;
+  flags: longint;
+  bytesAvailable, d, empfang: integer;
 
 
   procedure setdisplaypeak;
@@ -394,40 +430,40 @@ var
     minl := -minl;
     minr := -minr;
 
-    if maxl<minl then maxl:=minl;
-    if maxr<minr then maxr:=minr;
+    if maxl < minl then maxl := minl;
+    if maxr < minr then maxr := minr;
 
-    InterlockedExchange(VULeft,  maxl);
-    InterlockedExchange(VURight, minl);
+    InterlockedExchange(VULeft, maxl);
+    InterlockedExchange(VURight, maxr);
   end;
 
 
-  procedure BufferToAlsa(Playbytes:integer);
-   begin
-      frames := snd_pcm_writei(pcm, @Framebuffer[3], (Playbytes - 12) div 4);
-        if frames < 0 then
-        begin
-          frames := snd_pcm_recover(pcm, frames, 0);
-          if frames >= 0 then
-            frames := snd_pcm_writei(pcm, @Framebuffer[3], (Playbytes - 12) div 4);
-        end;
-   end;
+  procedure BufferToAlsa(Playbytes: integer);
+  begin
+    //    headersize:= 12;
+    if not assigned(pcm) then exit;
+    frames := snd_pcm_writei(pcm, @Framebuffer[headersize div 4], (Playbytes - headersize) div 4);
+    if frames < 0 then
+    begin
+      frames := snd_pcm_recover(pcm, frames, 0);
+      if frames >= 0 then
+        frames := snd_pcm_writei(pcm, @Framebuffer[headersize div 4], (Playbytes - headersize) div 4);
+    end;
+  end;
 
- procedure bufferswapendian(buffersize:integer);
- var
-   x:integer;
- begin
-   if par_byteorder then
-                 begin
-               //   for x := headersize shr 1 to (received shr 1) - 1 do     // headersize 12
-                  for x := 12 to (buffersize shr 1) - 1 do  swapbuffer[x] := SwapEndian(swapbuffer[x]);
-                 end;
- end;
+  procedure bufferswapendian(buffersize: integer);
+  var
+    x: integer;
+  begin
+    if par_byteorder then
+    begin
+      for x := headersize to (buffersize shr 1) - 1 do swapbuffer[x] := SwapEndian(swapbuffer[x]);
+    end;
+  end;
 
 
-  
 
-begin
+  begin
   res := SetThreadPriority(getcurrentthreadid, cprrr, 40);
   sock := fpSocket(AF_INET, SOCK_DGRAM, 0);
   if sock < 0 then
@@ -463,59 +499,64 @@ begin
     Exit;
   end;
 
-
-
-  repeat
-  if assigned(pcm) then
-  received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0); // in samples
-  sleep(1);
-  until (received>0) or terminated;
-
+  empfang:=0;
+   bufferduplicated :=10;
 
   repeat
-     if assigned(pcm) then
-     begin
+      Dec(empfang);
       fpIoctl(sock, FIONREAD, @bytesAvailable);
-      if   bytesAvailable>0 then
-       begin
-        empfang:=1000;
-         if d mod 15 = 0  then
-                     begin
-                      snd_pcm_delay(pcm, @delay);
-                      interlockedexchange(framecount, delay);
-                     end;
 
-       received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0); // in samples
-       bufferswapendian(received);
-       BufferToAlsa(received);
-       lastreceived:=received;
-       bufferduplicated:=0;
-       setdisplaypeak;
-       inc(d);
-       if d mod 15 = 0  then
-                     begin
-                      snd_pcm_delay(pcm, @delay);
-                      interlockedexchange(framecount, delay);
-                     end;
-       end else
-       begin
-           snd_pcm_delay(pcm, @delay);
-           if  (delay < 200)  and (bufferduplicated<5) then
-                  begin
-                      bufferswapendian(lastreceived);
-                      BufferToAlsa(lastreceived);
-                      inc (bufferduplicated);
-                      interlockedincrement(underruns);
-                  end;
+      if bytesAvailable > 0 then
+      begin
+         received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0); // in samples
+         if empfang < 10 then headersize := getrtpheadersize(@receivebuffer, SizeOf(Framebuffer));
+      if assigned(pcm) then
+        begin
+          snd_pcm_delay(pcm, @delay);
+          interlockedexchange(framecount, delay);
        end;
-    end;
-    sleep(1);
-    if assigned(pcm) then form1.label6.Caption:='Audio device: OK' else form1.label6.Caption:='Audio device: failure';
-    dec(empfang);
-    if empfang > 0 then  form1.label5.Caption:='Audio stream: connected' else form1.label5.Caption:='Audio stream: disconnected';
 
+        if received > 12 then
+        begin
+          bufferswapendian(received);
+          BufferToAlsa(received);
+          bufferduplicated := 0;
+          setdisplaypeak;
+        end;
+        lastreceived := received;
+        empfang := 100;
+      end
+      else
 
-  until terminated;
+       begin
+        if assigned(pcm) then
+        begin
+          snd_pcm_delay(pcm, @delay);
+          interlockedexchange(framecount, delay);
+
+          if (delay < 200) and (bufferduplicated < 5) then
+          begin
+            BufferToAlsa(lastreceived);
+            Inc(bufferduplicated);
+            interlockedincrement(underruns);
+            MicroSleep(2500);
+          end;
+        end;
+      end;
+     MicroSleep(1000);
+
+      if assigned(pcm) then  interlockedexchange(audio_ok, 1)
+      else
+        interlockedexchange(audio_ok, 0);
+
+       if empfang > 0 then  interlockedexchange(stream_ok, 1)
+      else
+        interlockedexchange(stream_ok, 0);
+
+        interlockedexchange(framecount, delay);
+
+        until terminated;
+
   closealsa;
   closesocket(sock);
 end;
@@ -525,9 +566,22 @@ procedure TForm1.Timer1Timer(Sender: TObject);
 begin
   Inc(nc);
   if nc mod 5 = 0 then label1.Caption := IntToStr(framecount);
-  if nc mod 59 = 0 then label4.Caption := IntToStr(underruns);
-  //VUMeter;
-
+  if nc mod 60 = 0 then
+  begin
+    label4.Caption := IntToStr(underruns);
+    if audio_ok > 0 then
+      label6.Caption := 'Audio device: OK'
+    else
+      form1.label6.Caption := 'Audio device: failure';
+    if stream_ok > 0 then
+      form1.label5.Caption := 'Audio stream: connected'
+    else
+    begin
+      form1.label5.Caption := 'Audio stream: disconnected';
+      vuleft := 0;
+      vuright := 0;
+    end;
+  end;
   PaintBoxVU.Invalidate;
 end;
 

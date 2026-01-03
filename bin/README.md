@@ -1,4 +1,4 @@
----
+ ---
 layout: default
 title: Network Audio Receiver (UDP) for Raspberry Pi
 description: Lightweight UDP stereo audio receiver for Raspberry Pi with very low latency via ALSA and PipeWire. Developed in Free Pascal on Debian Bookworm.
@@ -27,11 +27,12 @@ It outputs directly to **ALSA** (also compatible with **PipeWire** via ALSA emul
 
 ## 💡 Example Test Setup
 
-* **Sender**: Raspberry Pi 4 or pi 5 streaming YouTube audio via Wi-Fi
-* **Receiver**: Raspberry Pi 4 or pi 5 connected via Ethernet
+* **Sender**: Raspberry Pi 4 or Pi 5 streaming audio over UDP
+* **Receiver**: Raspberry Pi 4 or Pi 5 connected via Ethernet
 * **Output**: 3.5 mm jack → HiFi amplifier, or HDMI/USB audio
 
-Result: Stable low-latency playback on a typical home network, even while streaming video via RealVNC.
+Result: Stable low-latency playback on a typical home network, even while streaming video.
+
 ---
 
 ## ▶️ Usage
@@ -44,10 +45,10 @@ Install `ffmpeg`:
 sudo apt install ffmpeg
 ```
 
-To transmit system audio, use the provided startup script **`StartFFmpegTransmitter.sh`**:
+To transmit system audio, use the provided startup script **StartFFmpegTransmitter.sh**:
 
-1. Edit the script and replace the IP address with the address of your receiver.
-2. Set the port number to match the configuration on the receiver.
+1. Edit the script and replace the IP address with the address of your receiver.  
+2. Set the port number to match the configuration on the receiver.  
 3. Make the script executable:
 
 ```bash
@@ -63,21 +64,29 @@ Start the player:
 ```bash
 ./udp_player
 ```
-A window appears and starts playback automatically when UDP packets arrive. 
-Select the desired audio output in the settings window.
-Repeats the last valid audio block up to five times if new data is missing, preventing audible dropouts.
+
+- The player **does not require sudo**, as the necessary capabilities (`cap_net_raw,cap_sys_nice+ep`) are set during installation.  
+- On first start, it will create a **configuration file** at:
+
+```
+/var/lib/udp_player/udp_player.conf
+```
+
+- A window appears and starts playback automatically.  
+- Select the desired audio output in the settings window.  
+- Repeats the last valid audio block up to five times if new data is missing, preventing audible dropouts.
+
 ---
 
 ## ⚙️ Settings Description
 
 Control / Field | Description
 --- | ---
-**Audio Output Selection** | Choose the audio output device (Headphones/JACK, HDMI, USB audio, etc.). If no configuration exists for a device, a default configuration is created automatically at program start.
+**Audio Output Selection** | Choose the audio output device (Headphones/JACK, HDMI, USB audio, etc.). If no configuration exists for a device, a default configuration is created automatically at first start.
 **IP** | IP address to receive audio from. Use `0.0.0.0` to listen on all network interfaces.
 **Port** | UDP port for incoming audio. Default is `5010`.
-**Network Buffer** | Size of the receive buffer in bytes. Must be at least as large as a single sent audio block.
 **Frequency** | Audio sample rate in Hz.
-**Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 3000 for USB audio.
+**Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 4000 for USB audio.
 **Swap Byte Order** | Enable this if the incoming audio uses a different byte order (big/little endian).
 **Hide Window** | If enabled, the application window remains minimized or hidden once audio starts.
 **Test changes** | This button immediately applies the current settings without saving them.
@@ -88,8 +97,8 @@ Control / Field | Description
 
 ## 🎯 Latency Optimization
 
-* **Lower buffer size** → lower delay
-* **Too low** → possible dropouts or crackling audio
+* **Lower buffer size** → lower delay  
+* **Too low** → possible dropouts or crackling audio  
 * Best settings depend on:
   * Network type (**LAN** allows lower latency than Wi-Fi)
   * Raspberry Pi performance
@@ -105,8 +114,8 @@ If sound is too quiet:
 alsamixer
 ```
 
-* Press `F6` to select the right device
-* Raise the **Master** volume
+* Press `F6` to select the right device  
+* Raise the **Master** volume  
 
 Or via terminal:
 
@@ -115,6 +124,53 @@ amixer set 'Master' 100% unmute
 ```
 
 ---
+# 📦 Installation / Deinstallation via dpkg
+
+## Installation Steps
+
+1. Copy the `.deb` package to your Raspberry Pi.
+
+2. Install the package:
+
+```bash
+sudo dpkg -i udp_player_x.y.z.deb
+```
+
+This will install:
+
+```
+/usr/bin/udp_player         # Binary
+/usr/share/applications/... # Desktop menu entry
+~/.udp_player/              # Config folder (empty on first start)
+```
+
+Necessary capabilities are automatically set (`cap_net_raw,cap_sys_nice+ep`) → no sudo required for running the player.
+
+3. Start the player:
+
+```bash
+udp_player 
+or use the menu entry created during installation.
+```
+
+---
+
+## Deinstallation Steps
+
+To remove the player completely:
+
+```bash
+sudo dpkg -r udp_player
+```
+
+This removes the binary and the menu entry.
+
+To also remove the config folder (if you want a clean uninstall):
+
+```bash
+rm -rf ~/.udp_player
+```
+
 
 ## 📜 License
 

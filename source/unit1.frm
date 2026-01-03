@@ -7,15 +7,15 @@ object Form1: TForm1
   ClientHeight = 99
   ClientWidth = 401
   Position = poDesktopCenter
-  LCLVersion = '8.7'
+  LCLVersion = '8.8'
   OnClose = FormClose
   OnCreate = FormCreate
   object Label1: TLabel
     Left = 184
-    Height = 23
+    Height = 15
     Top = 8
-    Width = 49
-    Caption = 'Label1'
+    Width = 8
+    Caption = '0'
   end
   object Button1: TButton
     Left = 256
@@ -28,9 +28,9 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 8
-    Height = 23
+    Height = 15
     Top = 8
-    Width = 176
+    Width = 152
     Caption = 'in Alsa buffered samples:'
   end
   object SpeedButton1: TSpeedButton
@@ -120,31 +120,32 @@ object Form1: TForm1
   end
   object Label3: TLabel
     Left = 8
-    Height = 23
+    Height = 15
     Top = 24
-    Width = 134
+    Width = 117
     Caption = 'Buffer duplications:'
   end
   object Label4: TLabel
     Left = 184
-    Height = 23
+    Height = 15
     Top = 24
-    Width = 49
-    Caption = 'Label4'
+    Width = 8
+    Caption = '0'
   end
   object Label5: TLabel
     Left = 8
-    Height = 23
+    Height = 15
     Top = 40
-    Width = 185
+    Width = 160
     Caption = 'Audiostream disconnected'
   end
   object Label6: TLabel
-    Left = 214
-    Height = 23
+    Left = 216
+    Height = 15
     Top = 40
-    Width = 144
+    Width = 127
     Caption = 'Output device failure'
+    OnClick = Label6Click
   end
   object PaintBoxVU: TPaintBox
     Left = 8
