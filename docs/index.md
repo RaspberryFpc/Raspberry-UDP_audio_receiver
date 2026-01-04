@@ -50,17 +50,24 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 Result: Stable low-latency playback on a typical home network, even while streaming video via RealVNC.
 
 ---
+# 📥 Receiver
 
-## 📥 Receiver
+## Start the player
 
-Start the player:
+For an easy installation, **use the `.deb` package in the `bin/` directory**.
+There is also a **Quick Start guide** included
+
+Or, if you prefer, you can start the player manually **with `sudo` for optimal performance**:
 
 ```bash
-./udp_player
-````
+sudo ./udp_player
+```
 
-A window appears and starts playback automatically.
-**Audio output selection:** If this is the first run or no previous configuration was selected, choose your desired audio output (3.5 mm jack, HDMI, USB, etc.) in the settings window.
+A window will appear and start playback automatically.
+
+**Audio output selection:**
+If this is the first run or no previous configuration was selected,
+  choose your desired audio output (3.5 mm jack, HDMI, USB, etc.) in the settings window.
 
 ---
 
@@ -72,14 +79,14 @@ Install `ffmpeg`:
 sudo apt install ffmpeg
 ```
 
-To transmit system audio, use the provided startup script **`StartFFmpegTransmitter.sh`**:
+To transmit system audio, use the provided startup script **`ffmpeg_transmitter.sh`**:
 
 1. Edit the script and replace the IP address with the address of your receiver.
 2. Set the port number to match the configuration on the receiver.
 3. Make the script executable:
 
 ```bash
-chmod +x StartFFmpegTransmitter.sh
+chmod +x ffmpeg_transmitter.sh
 ```
 
 4. Save the file, place it on the desktop, and start it with a double-click.
