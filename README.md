@@ -16,7 +16,7 @@ It outputs directly to **ALSA** (also compatible with **PipeWire** via ALSA emul
 * Receives **stereo audio over UDP** (e.g., RTP stream) with selectable audio output: 3.5 mm jack, HDMI, USB, and more (choose one device at a time)
 * Direct **ALSA audio output** for minimal delay
 * Fully compatible with **PipeWire** via ALSA emulation
-* Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm**
+* Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm and Debian Trixie**
 * **No codec** → uncompressed audio, maximum quality, minimal processing delay
 * Supports multiple audio outputs: **3.5 mm jack, HDMI, USB, and more** (selectable in settings)
 * On startup, the window is visible
@@ -62,10 +62,10 @@ chmod +x ffmpeg_transmitter.sh
 Start the player:
 
 ```bash
-./udp_player
+sudo ./udp_player
 ```
-
-- The player **does not require sudo**, as the necessary capabilities (`cap_net_raw,cap_sys_nice+ep`) are set during installation.  
+- If the receiver is **installed via the provided `.deb` package**, it can also be started conveniently via the system menu.
+- In this case the player **does not require sudo**, as the necessary capabilities (`cap_net_raw,cap_sys_nice+ep`) are set during installation.  
 - On first start, it will create a **configuration file** at:
 
 ```
