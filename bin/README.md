@@ -45,14 +45,14 @@ Install `ffmpeg`:
 sudo apt install ffmpeg
 ```
 
-To transmit system audio, use the provided startup script **StartFFmpegTransmitter.sh**:
+To transmit system audio, use the provided startup script **ffmpeg_transmitter.sh**:
 
 1. Edit the script and replace the IP address with the address of your receiver.  
 2. Set the port number to match the configuration on the receiver.  
 3. Make the script executable:
 
 ```bash
-chmod +x StartFFmpegTransmitter.sh
+chmod +x ffmpeg_transmitter.sh
 ```
 
 4. Save the file, place it on the desktop, and start it with a double-click.
