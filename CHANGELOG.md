@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.12+1] – 2026-01-04
+### Changed
+Updated README
+Renamed sender script to ffmpeg_transmitter
+Moved IP address and port to constants in the sender script for easier configuration
+
+
 ## [1.0.12] – 2026-01-03
 ### Changed
 - Configuration handling updated:
