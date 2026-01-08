@@ -1,12 +1,10 @@
- ---
-Network Audio Receiver (UDP) for Raspberry Pi
-Lightweight UDP stereo audio receiver for Raspberry Pi with very low latency via ALSA and PipeWire. Developed in Free Pascal on Debian Bookworm.
 ---
-
 # 🎶 Network Audio Receiver (UDP) for Raspberry Pi
 
 A lightweight **UDP stereo audio receiver** for Raspberry Pi.  
-It outputs directly to **ALSA** (also compatible with **PipeWire** via ALSA emulation), ensuring **very low latency** – ideal for real-time monitoring and live audio.
+- Lightweight UDP stereo audio receiver for Raspberry Pi with very low latency via ALSA and PipeWire. Developed in Free Pascal on Debian Bookworm and Trixie.
+- It outputs directly to **ALSA** (also compatible with **PipeWire** via ALSA emulation).
+- Ideal for real-time monitoring and live audio.
 
 ---
 
