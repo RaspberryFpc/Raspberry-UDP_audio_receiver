@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.13] – 2026-03-15
+### Bugfix
+- Fixed an issue where audio device addresses could change on each boot. 
+- When reading the audio devices, the hardware addresses are now corrected if necessary to ensure consistent mapping.
+
+
+
 ## [1.0.12+1] – 2026-01-04
 ### Changed
 Updated README

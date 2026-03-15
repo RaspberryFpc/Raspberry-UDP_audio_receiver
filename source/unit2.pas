@@ -306,6 +306,24 @@ begin
                   //ip=0.0.0.0  5010 'frequency=48000')'latency=28000');'swapbyte=0'); 'hide=0');
                   paramstr:= item+'0.0.0.0;5010;48000;28000;0;0;';
                   configlist.Add(paramstr);
+                  end else
+                  begin   // geänderte hw adresse korrigieren
+                     // zeile suchen
+                     for x:=0 to configlist.count-1 do
+                        begin
+                          s := configlist[x];
+                          if pos(audioname,s)=1 then
+                             begin
+                              p:=pos(';',s);
+                              delete(s,1,p);
+                              p:=pos(';',s);
+                              delete(s,1,p);
+                              s:=item+s;
+                               // delete(s,1,length(item));
+                                configlist[x]:=s;
+                             break;
+                             end;
+                        end;
                   end;
            end;
       end;
@@ -314,12 +332,9 @@ begin
     AList.Free;
   end;
 
+   // get first available für lastdevice  when empty
 
-  // get first available für lastdevice  when empty
-
-
-
-  s:=configlist[0];
+   s:=configlist[0];
   if s='' then
         begin
           for x:= 1 to configlist.Count-1 do
