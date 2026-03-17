@@ -55,6 +55,7 @@ function OpenAlsa: boolean;
 
 var
    ConfigFileName:string;
+    pcm: PPsnd_pcm_t;
 
 type
 
@@ -115,7 +116,7 @@ procedure as_Unload();     // unload and frees the lib from memory
 
 
 var
-  par_name, par_device, par_port, par_ip, par_freq, par_latency: string;
+  par_name, par_device, par_port, par_ip, par_freq, par_latency,par_volume: string;
   par_byteorder, par_hide: boolean;
   // Dpeakleft, Dpeakright, displaypeakleft, displaypeakright: smallint;
   displaypeakL, displaypeakR: integer;
@@ -139,7 +140,7 @@ var
 
 
 const
-  version = '1.0.12';
+  version = '1.0.14';
 
 
 implementation
@@ -148,7 +149,7 @@ implementation
 
 
 var
-  pcm: PPsnd_pcm_t;
+//  pcm: PPsnd_pcm_t;
   sock: longint;
   sockaddr: TInetSockAddr;
   frames, n: integer;
@@ -228,8 +229,7 @@ end;
 
 function OpenAlsa: boolean;
 var
-  device: string; //'hw:0,0';             // name of sound device
-  // p: integer;
+  device: string;
 begin
   device := par_device;
   Result := False;
@@ -242,9 +242,12 @@ begin
       StrToInt(par_Latency));                // latency (us)
   Result := n = 0;
 
-  if assigned(pcm) then form1.label6.Caption := 'Audio device: OK'
+  if assigned(pcm) then
+         form1.label6.Caption := 'Audio device: OK'
   else
     form1.label6.Caption := 'Audio device: failure';
+
+  result:= assigned(pcm);
 
 end;
 
@@ -282,7 +285,6 @@ const
   border = 2;
 var
   L, R: integer;
-  wL, wR: integer;
   pL, pR: integer;
   h, mid: integer;
 begin
@@ -399,7 +401,7 @@ var
   headersize: integer;
   bufferduplicated: integer;
   flags: longint;
-  bytesAvailable, d, empfang: integer;
+  bytesAvailable, empfang: integer;
 
 
   procedure setdisplaypeak;

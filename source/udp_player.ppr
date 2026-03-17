@@ -12,7 +12,7 @@ uses
   Interfaces, // this includes the CT adLCL widgetset
   Forms,
   Unit1,
-  Unit2;
+  Unit2, alsa_volume;
 
   {$R *.res}
 
