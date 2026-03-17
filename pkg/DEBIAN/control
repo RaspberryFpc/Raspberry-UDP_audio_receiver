@@ -1,5 +1,5 @@
 Package: udp-player
-Version: 1.0.13
+Version: 1.0.14
 Section: sound
 Priority: optional
 Architecture: arm64

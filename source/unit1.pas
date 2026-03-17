@@ -54,7 +54,8 @@ procedure closealsa;
 function OpenAlsa: boolean;
 
 var
-   ConfigFileName:string;
+  ConfigFileName: string;
+  pcm: PPsnd_pcm_t;
 
 type
 
@@ -68,6 +69,7 @@ type
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label7: TLabel;
     PaintBoxVU: TPaintBox;
     SpeedButton1: TSpeedButton;
     statuslabel: TLabel;
@@ -115,7 +117,7 @@ procedure as_Unload();     // unload and frees the lib from memory
 
 
 var
-  par_name, par_device, par_port, par_ip, par_freq, par_latency: string;
+  par_name, par_device, par_port, par_ip, par_freq, par_latency, par_volume: string;
   par_byteorder, par_hide: boolean;
   // Dpeakleft, Dpeakright, displaypeakleft, displaypeakright: smallint;
   displaypeakL, displaypeakR: integer;
@@ -139,7 +141,7 @@ var
 
 
 const
-  version = '1.0.12';
+  version = '1.0.14';
 
 
 implementation
@@ -148,7 +150,7 @@ implementation
 
 
 var
-  pcm: PPsnd_pcm_t;
+  //  pcm: PPsnd_pcm_t;
   sock: longint;
   sockaddr: TInetSockAddr;
   frames, n: integer;
@@ -173,8 +175,9 @@ procedure NanoSleep(ns: int64);
 var
   ts, rem: timespec;
 begin
-  ts.tv_sec := ns div 1000000000;
+
   ts.tv_nsec := ns mod 1000000000;
+  ts.tv_sec := ns div 1000000000;
 
   while fpNanoSleep(@ts, @rem) <> 0 do
     ts := rem;
@@ -228,8 +231,7 @@ end;
 
 function OpenAlsa: boolean;
 var
-  device: string; //'hw:0,0';             // name of sound device
-  // p: integer;
+  device: string;
 begin
   device := par_device;
   Result := False;
@@ -242,9 +244,18 @@ begin
       StrToInt(par_Latency));                // latency (us)
   Result := n = 0;
 
-  if assigned(pcm) then form1.label6.Caption := 'Audio device: OK'
+  if assigned(pcm) then
+  begin
+    form1.label6.Caption := 'Audio device: OK';
+    //form1.label7.Caption := 'Device: '+par_name;
+  end
   else
+  begin
     form1.label6.Caption := 'Audio device: failure';
+    form1.label7.Caption := 'Device:';
+  end;
+
+  Result := assigned(pcm);
 
 end;
 
@@ -282,7 +293,6 @@ const
   border = 2;
 var
   L, R: integer;
-  wL, wR: integer;
   pL, pR: integer;
   h, mid: integer;
 begin
@@ -399,7 +409,7 @@ var
   headersize: integer;
   bufferduplicated: integer;
   flags: longint;
-  bytesAvailable, d, empfang: integer;
+  bytesAvailable, empfang: integer;
 
 
   procedure setdisplaypeak;
@@ -461,9 +471,7 @@ var
     end;
   end;
 
-
-
-  begin
+begin
   res := SetThreadPriority(getcurrentthreadid, cprrr, 40);
   sock := fpSocket(AF_INET, SOCK_DGRAM, 0);
   if sock < 0 then
@@ -499,63 +507,63 @@ var
     Exit;
   end;
 
-  empfang:=0;
-   bufferduplicated :=10;
+  empfang := 0;
+  bufferduplicated := 10;
 
   repeat
-      Dec(empfang);
-      fpIoctl(sock, FIONREAD, @bytesAvailable);
+    Dec(empfang);
+    fpIoctl(sock, FIONREAD, @bytesAvailable);
 
-      if bytesAvailable > 0 then
-      begin
-         received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0); // in samples
-         if empfang < 10 then headersize := getrtpheadersize(@receivebuffer, SizeOf(Framebuffer));
+    if bytesAvailable > 0 then
+    begin
+      received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0); // in samples
+      if empfang < 10 then headersize := getrtpheadersize(@receivebuffer, SizeOf(Framebuffer));
       if assigned(pcm) then
-        begin
-          snd_pcm_delay(pcm, @delay);
-          interlockedexchange(framecount, delay);
-       end;
-
-        if received > 12 then
-        begin
-          bufferswapendian(received);
-          BufferToAlsa(received);
-          bufferduplicated := 0;
-          setdisplaypeak;
-        end;
-        lastreceived := received;
-        empfang := 100;
-      end
-      else
-
-       begin
-        if assigned(pcm) then
-        begin
-          snd_pcm_delay(pcm, @delay);
-          interlockedexchange(framecount, delay);
-
-          if (delay < 200) and (bufferduplicated < 5) then
-          begin
-            BufferToAlsa(lastreceived);
-            Inc(bufferduplicated);
-            interlockedincrement(underruns);
-            MicroSleep(2500);
-          end;
-        end;
+      begin
+        snd_pcm_delay(pcm, @delay);
+        interlockedexchange(framecount, delay);
       end;
-     MicroSleep(1000);
 
-      if assigned(pcm) then  interlockedexchange(audio_ok, 1)
-      else
-        interlockedexchange(audio_ok, 0);
+      if received > 12 then
+      begin
+        bufferswapendian(received);
+        BufferToAlsa(received);
+        bufferduplicated := 0;
+        setdisplaypeak;
+      end;
+      lastreceived := received;
+      empfang := 100;
+    end
+    else
 
-       if empfang > 0 then  interlockedexchange(stream_ok, 1)
-      else
-        interlockedexchange(stream_ok, 0);
-
+    begin
+      if assigned(pcm) then
+      begin
+        snd_pcm_delay(pcm, @delay);
         interlockedexchange(framecount, delay);
 
-        until terminated;
+        if (delay < 200) and (bufferduplicated < 5) then
+        begin
+          BufferToAlsa(lastreceived);
+          Inc(bufferduplicated);
+          interlockedincrement(underruns);
+          MicroSleep(2500);
+        end;
+      end;
+    end;
+    MicroSleep(1000);
+
+    if assigned(pcm) then  interlockedexchange(audio_ok, 1)
+    else
+      interlockedexchange(audio_ok, 0);
+
+    if empfang > 0 then  interlockedexchange(stream_ok, 1)
+    else
+      interlockedexchange(stream_ok, 0);
+
+    interlockedexchange(framecount, delay);
+
+  until terminated;
 
   closealsa;
   closesocket(sock);

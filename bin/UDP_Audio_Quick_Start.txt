@@ -30,7 +30,7 @@ Audio is now streamed via UDP to the receiver.
 
 RECEIVER (UDP Audio Player)
 
-Install the receiver using the .deb package: sudo dpkg -i udp_player_1.0.12.deb
+Install the receiver using the .deb package: sudo dpkg -i udp_player_x.x.x.deb
 
 During installation:
 The binary is installed to /usr/bin/udp_player
@@ -53,5 +53,4 @@ NOTES
 
 Sender and receiver port numbers must match
 For low latency, use a wired (LAN) connection if possible
-Audio output device can be selected in the receiver settings
-
+The audio output device and its volume can be configured in the receiver settings.

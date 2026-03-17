@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://RaspberryFpc.github.io/Raspberry-UDP_audio_receiver/sitemap.xml

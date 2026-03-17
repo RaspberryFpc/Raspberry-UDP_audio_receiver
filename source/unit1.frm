@@ -154,6 +154,13 @@ object Form1: TForm1
     Width = 387
     OnPaint = PaintBoxVUPaint
   end
+  object Label7: TLabel
+    Left = 8
+    Height = 15
+    Top = 56
+    Width = 46
+    Caption = 'Device:'
+  end
   object Timer1: TTimer
     Interval = 30
     OnTimer = Timer1Timer

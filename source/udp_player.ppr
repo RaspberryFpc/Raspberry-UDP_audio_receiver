@@ -12,13 +12,14 @@ uses
   Interfaces, // this includes the CT adLCL widgetset
   Forms,
   Unit1,
-  Unit2;
+  Unit2,
+  alsa_volume;
 
   {$R *.res}
 
 begin
   RequireDerivedFormResource := True;
-  Application.Scaled:=True;
+  Application.Scaled := True;
   {$PUSH}
   {$WARN 5044 OFF}
   Application.MainFormOnTaskbar := True;

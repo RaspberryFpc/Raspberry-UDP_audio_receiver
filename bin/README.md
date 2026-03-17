@@ -86,13 +86,14 @@ Control / Field | Description
 **IP** | IP address to receive audio from. Use `0.0.0.0` to listen on all network interfaces.
 **Port** | UDP port for incoming audio. Default is `5010`.
 **Frequency** | Audio sample rate in Hz.
-**Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 4000 for USB audio.
+**Latency** | Audio latency in samples. Typical values: 28000 for JACK/Headphones, 4000 for USB audio.
 **Swap Byte Order** | Enable this if the incoming audio uses a different byte order (big/little endian).
 **Hide Window** | If enabled, the application window remains minimized or hidden once audio starts.
 **Test changes** | This button immediately applies the current settings without saving them.
 **Save changes** | This button saves the current settings to the configuration file for future use.
 **Delete Device** | This button deletes the selected device configuration. If the device exists, it will be recreated with default values at the next program start.
-
+**Volume** | Sets the output volume of the selected ALSA sound card in percent. This directly controls the hardware mixer (e.g. Master or PCM) of the selected device and ensures consistent volume levels,
+ especially for USB audio devices with dynamic addressing.
 ---
 
 ## 🎯 Latency Optimization
@@ -109,6 +110,12 @@ Control / Field | Description
 ## 🔊 Audio Volume
 
 If sound is too quiet:
+
+You can adjust the ALSA output volume directly in the application settings.
+A new parameter allows you to control the output volume of the selected ALSA sound card.
+
+Alternatively, you can still use system tools for manual adjustment:
+
 
 ```bash
 alsamixer

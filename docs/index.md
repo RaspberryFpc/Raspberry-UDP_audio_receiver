@@ -9,6 +9,7 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 
 * Receives **stereo audio over UDP** (e.g., RTP stream) with selectable audio output: 3.5 mm jack, HDMI, USB, and more (choose one device at a time)
 * Direct **ALSA audio output** for minimal delay (PipeWire ALSA bridge supported)
+* Directly controls the ALSA mixer output level for the selected device. Changes are applied immediately. 
 * Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm**
 * **No codec** → uncompressed audio, maximum quality, minimal processing delay
 * On startup, the window is visible
@@ -32,7 +33,7 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 | **Activate** | Immediately applies the current settings without saving them. |
 | **Save** | Saves the current settings to the configuration file for future use. |
 | **Delete Device** | Deletes the selected device configuration. If the device exists, it will be recreated with default values at the next program start. |
-
+| **Volume** | Controls the ALSA mixer output level for the selected device. |
 ---
 
 ## 💡 Example Test Setup

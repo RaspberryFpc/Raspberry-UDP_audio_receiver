@@ -14,7 +14,7 @@ object Form2: TForm2
     Left = 9
     Height = 25
     Top = 252
-    Width = 136
+    Width = 104
     Alignment = taCenter
     AutoSize = False
     AutoSelect = False
@@ -50,9 +50,9 @@ object Form2: TForm2
     Text = '28000'
   end
   object CBByteOrder: TCheckBox
-    Left = 176
+    Left = 216
     Height = 21
-    Top = 237
+    Top = 240
     Width = 209
     Caption = 'Swap Byte Order (Endianness)'
     TabOrder = 3
@@ -60,7 +60,7 @@ object Form2: TForm2
   object Label1: TLabel
     Left = 24
     Height = 22
-    Top = 229
+    Top = 232
     Width = 85
     Alignment = taCenter
     AutoSize = False
@@ -109,9 +109,9 @@ object Form2: TForm2
     Caption = 'IP address'
   end
   object CBHide: TCheckBox
-    Left = 176
+    Left = 216
     Height = 21
-    Top = 252
+    Top = 255
     Width = 121
     Caption = 'Start minimized'
     TabOrder = 5
@@ -126,10 +126,10 @@ object Form2: TForm2
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 144
+    Left = 136
     Height = 25
     Top = 292
-    Width = 112
+    Width = 128
     Caption = 'Test changes'
     TabOrder = 7
     OnClick = Button2Click
@@ -165,5 +165,27 @@ object Form2: TForm2
     ParentFont = False
     ReadOnly = True
     TabOrder = 10
+  end
+  object Label2: TLabel
+    Left = 120
+    Height = 22
+    Top = 232
+    Width = 85
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Volume %'
+  end
+  object SpinEdit_Volume: TSpinEdit
+    Left = 128
+    Height = 28
+    Top = 250
+    Width = 66
+    Alignment = taRightJustify
+    Font.Height = 16
+    MaxValue = 100
+    ParentFont = False
+    TabOrder = 11
+    Value = 100
+    OnChange = SpinEdit_VolumeChange
   end
 end
