@@ -32,7 +32,7 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 | **Activate** | Immediately applies the current settings without saving them. |
 | **Save** | Saves the current settings to the configuration file for future use. |
 | **Delete Device** | Deletes the selected device configuration. If the device exists, it will be recreated with default values at the next program start. |
-
+| **Volume** | Adjust Volume for the device. |
 ---
 
 ## 💡 Example Test Setup
