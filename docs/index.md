@@ -102,6 +102,7 @@ chmod +x ffmpeg_transmitter.sh
 ## 🔊 Audio Volume
 
 If sound is too quiet:
+* use Volume in settings or
 
 ```bash
 alsamixer
