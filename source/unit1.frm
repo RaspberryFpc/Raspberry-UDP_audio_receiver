@@ -1,11 +1,11 @@
 object Form1: TForm1
   Left = 242
-  Height = 99
+  Height = 79
   Top = 158
-  Width = 401
+  Width = 402
   Caption = 'UDP player'
-  ClientHeight = 99
-  ClientWidth = 401
+  ClientHeight = 79
+  ClientWidth = 402
   Position = poDesktopCenter
   LCLVersion = '8.8'
   OnClose = FormClose
@@ -17,15 +17,6 @@ object Form1: TForm1
     Width = 8
     Caption = '0'
   end
-  object Button1: TButton
-    Left = 256
-    Height = 25
-    Top = 8
-    Width = 53
-    Caption = 'close'
-    TabOrder = 0
-    OnClick = Button1Click
-  end
   object Label2: TLabel
     Left = 8
     Height = 15
@@ -34,7 +25,7 @@ object Form1: TForm1
     Caption = 'in Alsa buffered samples:'
   end
   object SpeedButton1: TSpeedButton
-    Left = 328
+    Left = 365
     Height = 25
     Top = 8
     Width = 30
@@ -118,53 +109,31 @@ object Form1: TForm1
     ShowCaption = False
     OnClick = SpeedButton1Click
   end
-  object Label3: TLabel
-    Left = 8
-    Height = 15
-    Top = 24
-    Width = 117
-    Caption = 'Buffer duplications:'
-  end
-  object Label4: TLabel
-    Left = 184
-    Height = 15
-    Top = 24
-    Width = 8
-    Caption = '0'
-  end
   object Label5: TLabel
     Left = 8
     Height = 15
     Top = 40
-    Width = 160
-    Caption = 'Audiostream disconnected'
-  end
-  object Label6: TLabel
-    Left = 216
-    Height = 15
-    Top = 40
-    Width = 127
-    Caption = 'Output device failure'
-    OnClick = Label6Click
+    Width = 48
+    Caption = 'Stream:'
   end
   object PaintBoxVU: TPaintBox
     Left = 8
     Height = 17
-    Top = 72
+    Top = 56
     Width = 387
     OnPaint = PaintBoxVUPaint
   end
   object Label7: TLabel
     Left = 8
     Height = 15
-    Top = 56
+    Top = 24
     Width = 46
     Caption = 'Device:'
   end
   object Timer1: TTimer
     Interval = 30
     OnTimer = Timer1Timer
-    Left = 336
-    Top = 64
+    Left = 208
+    Top = 8
   end
 end

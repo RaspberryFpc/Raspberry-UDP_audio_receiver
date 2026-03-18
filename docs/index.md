@@ -43,6 +43,7 @@ It outputs directly to **ALSA** (also compatible with PipeWire using its ALSA br
 * **Output**: 3.5 mm jack → HiFi amplifier, or HDMI/USB audio
 
 Result: Stable low-latency playback on a typical home network, even while streaming video via RealVNC.
+if you are using USB devices than Alsa latencies lower than 2.5ms possible
 
 ---
 # 📥 Receiver
@@ -51,12 +52,6 @@ Result: Stable low-latency playback on a typical home network, even while stream
 
 For an easy installation, **use the `.deb` package in the `bin/` directory**.
 There is also a **Quick Start guide** included
-
-Or, if you prefer, you can start the player manually **with `sudo` for optimal performance**:
-
-```bash
-sudo ./udp_player
-```
 
 A window will appear and start playback automatically.
 
@@ -103,6 +98,9 @@ chmod +x ffmpeg_transmitter.sh
 ## 🔊 Audio Volume
 
 If sound is too quiet:
+adjust the volume in the settings 
+
+or
 
 ```bash
 alsamixer

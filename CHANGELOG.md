@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.0] – 2026-03-18 
+###Realtime UDP Audio Improvements
+-Removed buffer duplication for direct packet processing.
+-Switched to poll-based waiting for cleaner and more efficient socket handling.
+-On USB audio devices, ALSA buffer times below 2.5 ms are now achievable.
+
+
 ## [1.0.13] – 2026-03-15
 ### Bugfix
 - Fixed an issue where audio device addresses could change on each boot. 

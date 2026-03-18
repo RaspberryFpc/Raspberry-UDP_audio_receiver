@@ -9,6 +9,7 @@ uses
   Buttons, ComCtrls, dynlibs, Sockets, UnixType, BaseUnix, Unix,
   pthreads, unit2;
 
+
 type
   TClassPriority = (cprOther, cprFIFO, cprRR);
 
@@ -62,19 +63,14 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    Button1: TButton;
     Label1: TLabel;
     Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
     Label5: TLabel;
-    Label6: TLabel;
     Label7: TLabel;
     PaintBoxVU: TPaintBox;
     SpeedButton1: TSpeedButton;
     statuslabel: TLabel;
     Timer1: TTimer;
-    procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure Label6Click(Sender: TObject);
@@ -130,18 +126,16 @@ var
   Form1: TForm1;
   ReceiverThread: TReceiverThread;
   delay: cint;
-  framecount, underruns: integer;
+  framecount: integer;
   gain: double;
 
   VULeft, VURight: longint;        // aktueller Pegel
   PeakLeft, PeakRight: longint;   // Peak-Hold
 
-  stream_ok, audio_ok: integer;
-
-
+  stream_ok: boolean;
 
 const
-  version = '1.0.14';
+  version = '1.1.0';
 
 
 implementation
@@ -150,9 +144,6 @@ implementation
 
 
 var
-  //  pcm: PPsnd_pcm_t;
-  sock: longint;
-  sockaddr: TInetSockAddr;
   frames, n: integer;
   res: boolean;
 
@@ -244,19 +235,6 @@ begin
       StrToInt(par_Latency));                // latency (us)
   Result := n = 0;
 
-  if assigned(pcm) then
-  begin
-    form1.label6.Caption := 'Audio device: OK';
-    //form1.label7.Caption := 'Device: '+par_name;
-  end
-  else
-  begin
-    form1.label6.Caption := 'Audio device: failure';
-    form1.label7.Caption := 'Device:';
-  end;
-
-  Result := assigned(pcm);
-
 end;
 
 
@@ -267,7 +245,6 @@ begin
     snd_pcm_drain(pcm);              // drain any remaining samples
     snd_pcm_close(pcm);
     pcm := nil;
-    form1.label6.Caption := 'Audio device: failure';
   end;
 end;
 
@@ -340,12 +317,6 @@ begin
   as_unload;
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  form1.Close;
-end;
-
-
 
 
 type
@@ -400,16 +371,19 @@ var
   receivebuffer: array[0..buffersize - 1] of byte;
   framebuffer: array[0..framebuffersize - 1] of double_smallints absolute receivebuffer;
   swapbuffer: array[0..swapbuffersize - 1] of word absolute receivebuffer;
-  lastreceived, received: integer;
+  received: integer;
   bufsize: integer = $10000;
-  port: word;
   lport: longint;
-  timeout: TTimeVal;
   minL, maxL, minR, maxR, v: smallint;
   headersize: integer;
-  bufferduplicated: integer;
-  flags: longint;
-  bytesAvailable, empfang: integer;
+  checkheadersize: integer = 0;
+  sock: cint;
+  sockaddr: TInetSockAddr;
+//  lport: Integer;
+  pfd: TPollFD;
+  ret: cint;
+//  received: LongInt;
+//  timeout: cint;
 
 
   procedure setdisplaypeak;
@@ -471,8 +445,14 @@ var
     end;
   end;
 
+
+
+
 begin
-  res := SetThreadPriority(getcurrentthreadid, cprrr, 40);
+  // Thread Priority
+  SetThreadPriority(GetCurrentThreadId, cprrr, 40);
+
+  // Socket erstellen
   sock := fpSocket(AF_INET, SOCK_DGRAM, 0);
   if sock < 0 then
   begin
@@ -480,112 +460,100 @@ begin
     Exit;
   end;
 
-
+  // Adresse vorbereiten
   FillChar(sockaddr, SizeOf(sockaddr), 0);
   sockaddr.sin_family := AF_INET;
-  lport := StrToInt(par_port);
-  trystrtoint(par_port, Lport);
-  port := lport;
 
-  sockaddr.sin_port := htons(PORT);
-  sockaddr.sin_addr := StrToNetAddr(par_ip);
-
-  fpsetsockopt(sock, SOL_SOCKET, SO_RCVBUF, @bufsize, SizeOf(bufsize));
-
-  timeout.tv_sec := 0;  // Timeout auf 1 ms setzen
-  timeout.tv_usec := 1000;
-  fpsetsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, @timeout, SizeOf(timeout));
-
-  flags := fpfcntl(sock, F_GETFL, 0);      // aktuelle Flags lesen
-  fpfcntl(sock, F_SETFL, flags or O_NONBLOCK); // O_NONBLOCK setzen
-
-
-
-  if fpBind(sock, @sockaddr, SizeOf(sockaddr)) < 0 then
+  if not TryStrToInt(par_port, lport) then
   begin
-    writeln('Fehler beim Binden des Sockets.');
+    writeln('Ungültiger Port.');
     Exit;
   end;
 
-  empfang := 0;
-  bufferduplicated := 10;
+  sockaddr.sin_port := htons(lport);
+  sockaddr.sin_addr := StrToNetAddr(par_ip);
 
-  repeat
-    Dec(empfang);
-    fpIoctl(sock, FIONREAD, @bytesAvailable);
+  // Receive Buffer setzen
+  fpsetsockopt(sock, SOL_SOCKET, SO_RCVBUF, @bufsize, SizeOf(bufsize));
 
-    if bytesAvailable > 0 then
+  // Binden
+  if fpBind(sock, @sockaddr, SizeOf(sockaddr)) < 0 then
+  begin
+    writeln('Fehler beim Binden des Sockets.');
+    fpClose(sock);
+    Exit;
+  end;
+
+  // poll vorbereiten
+  pfd.fd := sock;
+  pfd.events := POLLIN;
+
+   repeat
+    ret := fpPoll(@pfd, 1, 50 );  // 50ms timeout
+
+    if ret > 0 then
     begin
-      received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0); // in samples
-      if empfang < 10 then headersize := getrtpheadersize(@receivebuffer, SizeOf(Framebuffer));
-      if assigned(pcm) then
+      if (pfd.revents and POLLIN) <> 0 then
       begin
-        snd_pcm_delay(pcm, @delay);
-        interlockedexchange(framecount, delay);
-      end;
+        received := fpRecv(sock, @receivebuffer, SizeOf(Framebuffer), 0);
 
-      if received > 12 then
-      begin
-        bufferswapendian(received);
-        BufferToAlsa(received);
-        bufferduplicated := 0;
-        setdisplaypeak;
-      end;
-      lastreceived := received;
-      empfang := 100;
-    end
-    else
-
-    begin
-      if assigned(pcm) then
-      begin
-        snd_pcm_delay(pcm, @delay);
-        interlockedexchange(framecount, delay);
-
-        if (delay < 200) and (bufferduplicated < 5) then
+        if (received > 12) and assigned(pcm) then
         begin
-          BufferToAlsa(lastreceived);
-          Inc(bufferduplicated);
-          interlockedincrement(underruns);
-          MicroSleep(2500);
+          Dec(checkheadersize);
+          if checkheadersize < 0 then
+          begin
+            headersize := getrtpheadersize(@receivebuffer, SizeOf(Framebuffer));
+            checkheadersize := 100;
+          end;
+
+          stream_ok := True;
+
+          snd_pcm_delay(pcm, @delay);
+          interlockedexchange(framecount, delay);
+
+          bufferswapendian(received);
+          BufferToAlsa(received);
+          setdisplaypeak;
         end;
       end;
     end;
-    MicroSleep(1000);
-
-    if assigned(pcm) then  interlockedexchange(audio_ok, 1)
-    else
-      interlockedexchange(audio_ok, 0);
-
-    if empfang > 0 then  interlockedexchange(stream_ok, 1)
-    else
-      interlockedexchange(stream_ok, 0);
-
-    interlockedexchange(framecount, delay);
 
   until terminated;
 
   closealsa;
-  closesocket(sock);
+  fpClose(sock);
 end;
+
+
 
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
   Inc(nc);
   if nc mod 5 = 0 then label1.Caption := IntToStr(framecount);
-  if nc mod 60 = 0 then
+  if nc mod 6 = 0 then
   begin
-    label4.Caption := IntToStr(underruns);
-    if audio_ok > 0 then
-      label6.Caption := 'Audio device: OK'
-    else
-      form1.label6.Caption := 'Audio device: failure';
-    if stream_ok > 0 then
-      form1.label5.Caption := 'Audio stream: connected'
+    if assigned(pcm) then
+    begin
+      if label7.Caption <> 'Device: ' + par_name then label7.Caption := 'Device: ' + par_name;
+      if stream_ok then
+      begin
+        stream_ok := False;
+        if label5.Caption <> 'Stream: connected' then
+          label5.Caption := 'Stream: connected';
+      end
+      else
+      if label5.Caption <> 'Stream: disconnected' then
+        label5.Caption := 'Stream: disconnected';
+    end
     else
     begin
-      form1.label5.Caption := 'Audio stream: disconnected';
+      if label7.Caption <> 'Device: none' then label7.Caption := 'Device: none';
+      if label5.Caption <> 'Stream: disconnected' then  label5.Caption := 'Stream: disconnected';
+
+    end;
+    if not stream_ok then
+    begin
       vuleft := 0;
       vuright := 0;
     end;
