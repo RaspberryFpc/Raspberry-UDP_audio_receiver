@@ -1,6 +1,4 @@
 source/lib/
 source/udp_player.conf
 source/udp_player.dbg
-pkg
-docs
 build_release.sh
