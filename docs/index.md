@@ -5,6 +5,7 @@
 Experience near real-time audio with **sub-7 ms latency** over your network.
 
 ---
+👉 **[Download Latest Release](https://github.com/RaspberryFpc/Raspberry-UDP_audio_receiver/releases)**
 
 ## 🚀 Why this project?
 
