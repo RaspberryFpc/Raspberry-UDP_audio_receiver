@@ -13,6 +13,7 @@ lxterminal -e /usr/bin/ffmpeg \
   -f pulse -i default \
   -acodec pcm_s16le \
   -f rtp \
+  -pkt_size 736 \
   -fflags nobuffer \
   -flags low_delay \
   -max_delay 0 \

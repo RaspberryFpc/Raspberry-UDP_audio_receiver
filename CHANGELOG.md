@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.1] – 2026-03-21 
+###Realtime UDP Audio Improvements
+Audio delay display changed from samples to milliseconds (ms) for better readability
+Reduced FFmpeg RTP packet size from default 1472 bytes to 736 bytes
+
+### Latency Improvements
+Sender latency reduced to approx. 3.9 ms due to smaller packet size
+Network latency:~0.5 ms 
+Receiver latency: approx. 2.5 ms
+👉 Resulting in a total end-to-end latency of < 7 ms
+
+This corresponds roughly to the acoustic delay of being ~2.5 meters away from a speaker
+
+
+
 ## [1.1.0] – 2026-03-18 
 ###Realtime UDP Audio Improvements
 -Removed buffer duplication for direct packet processing.

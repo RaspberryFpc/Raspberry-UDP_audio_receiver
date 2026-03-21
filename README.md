@@ -22,10 +22,34 @@ A lightweight **UDP stereo audio receiver** for Raspberry Pi.
 
 ---
 
+⚡ Ultra-Low Latency Audio Streaming
+
+This project is optimized for extremely low end-to-end latency — achieving sub-7 ms audio transmission over network.
+
+By tuning FFmpeg RTP packet size from the default 1472 bytes down to 736 bytes, latency is significantly reduced across the entire pipeline:
+
+🚀 ~3.9 ms sender latency
+🌐 ~0.5 ms network latency
+🎧 ~2.5 ms receiver latency
+
+👉 Total latency: < 7 ms
+
+🔊 Real-World Comparison
+
+That’s roughly the same delay as standing just ~2.5 meters away from a speaker — effectively real-time audio.
+
+💡 Designed for Performance
+Buffer and delay values are displayed in milliseconds (ms) for intuitive monitoring
+Optimized for low-latency ALSA playback
+Smaller packets = faster delivery (with minimal overhead trade-off)
+
+
+
+
 ## 💡 Example Test Setup
 
-* **Sender**: Raspberry Pi 4 or Pi 5 streaming audio over UDP
-* **Receiver**: Raspberry Pi 4 or Pi 5 connected via Ethernet
+* **Sender**: Raspberry Pi 5 connected via Wlan streaming audio over UDP
+* **Receiver**: Raspberry Pi 4 connected via Ethernet
 * **Output**: 3.5 mm jack → HiFi amplifier, or HDMI/USB audio
 
 Result: Stable low-latency playback on a typical home network, even while streaming video.

@@ -1,31 +1,79 @@
 object Form1: TForm1
   Left = 242
-  Height = 79
+  Height = 86
   Top = 158
   Width = 402
   Caption = 'UDP player'
-  ClientHeight = 79
+  ClientHeight = 86
   ClientWidth = 402
   Position = poDesktopCenter
   LCLVersion = '8.8'
   OnClose = FormClose
   OnCreate = FormCreate
   object Label1: TLabel
-    Left = 184
-    Height = 15
+    AnchorSideLeft.Control = Label2
+    AnchorSideLeft.Side = asrBottom
+    Left = 109
+    Height = 17
     Top = 8
-    Width = 8
-    Caption = '0'
+    Width = 74
+    AutoSize = False
+    Caption = '0.0     '
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = 13
+    Font.Name = 'Sans Serif'
+    ParentFont = False
+    ParentShowHint = False
+    ShowAccelChar = False
+    Transparent = False
   end
   object Label2: TLabel
     Left = 8
-    Height = 15
+    Height = 17
     Top = 8
-    Width = 152
-    Caption = 'in Alsa buffered samples:'
+    Width = 101
+    AutoSize = False
+    Caption = 'Buffered Audio:'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = 13
+    Font.Name = 'Sans Serif'
+    ParentFont = False
+    ParentShowHint = False
+    ShowAccelChar = False
+    Transparent = False
+  end
+  object Label7: TLabel
+    Left = 8
+    Height = 17
+    Top = 24
+    Width = 385
+    AutoSize = False
+    Caption = 'Device:'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = 13
+    Font.Name = 'Sans Serif'
+    ParentFont = False
+    ParentShowHint = False
+    ShowAccelChar = False
+    Transparent = False
+  end
+  object Label5: TLabel
+    Left = 8
+    Height = 17
+    Top = 40
+    Width = 268
+    AutoSize = False
+    Caption = 'Stream:'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = 13
+    Font.Name = 'Sans Serif'
+    ParentFont = False
+    ParentShowHint = False
+    ShowAccelChar = False
+    Transparent = False
   end
   object SpeedButton1: TSpeedButton
-    Left = 365
+    Left = 363
     Height = 25
     Top = 8
     Width = 30
@@ -109,31 +157,17 @@ object Form1: TForm1
     ShowCaption = False
     OnClick = SpeedButton1Click
   end
-  object Label5: TLabel
-    Left = 8
-    Height = 15
-    Top = 40
-    Width = 48
-    Caption = 'Stream:'
-  end
   object PaintBoxVU: TPaintBox
     Left = 8
     Height = 17
-    Top = 56
+    Top = 62
     Width = 387
     OnPaint = PaintBoxVUPaint
-  end
-  object Label7: TLabel
-    Left = 8
-    Height = 15
-    Top = 24
-    Width = 46
-    Caption = 'Device:'
   end
   object Timer1: TTimer
     Interval = 30
     OnTimer = Timer1Timer
-    Left = 208
+    Left = 328
     Top = 8
   end
 end

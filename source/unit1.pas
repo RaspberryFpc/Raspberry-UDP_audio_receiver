@@ -73,7 +73,6 @@ type
     Timer1: TTimer;
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
-    procedure Label6Click(Sender: TObject);
     procedure PaintBoxVUPaint(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -113,7 +112,7 @@ procedure as_Unload();     // unload and frees the lib from memory
 
 
 var
-  par_name, par_device, par_port, par_ip, par_freq, par_latency, par_volume: string;
+  par_name, par_device, par_port, par_ip, par_freq, par_latency, par_volume: shortstring;
   par_byteorder, par_hide: boolean;
   // Dpeakleft, Dpeakright, displaypeakleft, displaypeakright: smallint;
   displaypeakL, displaypeakR: integer;
@@ -125,17 +124,17 @@ var
 
   Form1: TForm1;
   ReceiverThread: TReceiverThread;
+
   delay: cint;
-  framecount: integer;
   gain: double;
 
   VULeft, VURight: longint;        // aktueller Pegel
   PeakLeft, PeakRight: longint;   // Peak-Hold
 
-  stream_ok: boolean;
+
 
 const
-  version = '1.1.0';
+  version = '1.1.1';
 
 
 implementation
@@ -146,6 +145,9 @@ implementation
 var
   frames, n: integer;
   res: boolean;
+  stream_ok: boolean;
+  timercount:dword;
+
 
 
 
@@ -248,20 +250,11 @@ begin
   end;
 end;
 
-
-
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   form1.Caption := 'UDP player v' + version;
   as_Load;
 end;
-
-procedure TForm1.Label6Click(Sender: TObject);
-begin
-
-end;
-
-
 
 procedure TForm1.PaintBoxVUPaint(Sender: TObject);
 const
@@ -274,10 +267,12 @@ var
   h, mid: integer;
 begin
   h := PaintBoxVU.Height;
-  mid := h div 2; // aktuelle Werte holen (atomar)
-  L := InterlockedExchange(vuleft, vuleft);
-  R := InterlockedExchange(vuright, vuright);
-
+  mid := h div 2;
+  // aktuelle Werte holen (atomar)
+  L := InterlockedExchangeAdd(vuleft,0);
+  R := InterlockedExchangeAdd(vuright,0);
+  vuleft:=0;
+  vuright:=0;
 
   PeakLeft := PeakLeft - PEAK_DECAY;
   PeakRight := PeakRight - PEAK_DECAY;
@@ -293,7 +288,6 @@ begin
     FillRect(PaintBoxVU.ClientRect);
     // LEFT
     Brush.Color := clLime;
-    // FillRect(Rect(0, 0, pL, mid - 2));
     FillRect(Rect(0, border, pL, mid - border div 2));
     // RIGHT
     Brush.Color := clAqua;
@@ -301,13 +295,10 @@ begin
   end;
 end;
 
-
-
 procedure TForm1.SpeedButton1Click(Sender: TObject);
 begin
   form2.showmodal;
 end;
-
 
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
@@ -379,11 +370,8 @@ var
   checkheadersize: integer = 0;
   sock: cint;
   sockaddr: TInetSockAddr;
-//  lport: Integer;
   pfd: TPollFD;
   ret: cint;
-//  received: LongInt;
-//  timeout: cint;
 
 
   procedure setdisplaypeak;
@@ -417,8 +405,8 @@ var
     if maxl < minl then maxl := minl;
     if maxr < minr then maxr := minr;
 
-    InterlockedExchange(VULeft, maxl);
-    InterlockedExchange(VURight, maxr);
+    if vuleft <  maxl then  InterlockedExchange(VULeft, maxl);
+      if vuRight <  maxr then  InterlockedExchange(VURight, maxr);
   end;
 
 
@@ -435,14 +423,14 @@ var
     end;
   end;
 
+
+
   procedure bufferswapendian(buffersize: integer);
   var
     x: integer;
   begin
     if par_byteorder then
-    begin
-      for x := headersize to (buffersize shr 1) - 1 do swapbuffer[x] := SwapEndian(swapbuffer[x]);
-    end;
+        for x := headersize to (buffersize shr 1) - 1 do swapbuffer[x] := SwapEndian(swapbuffer[x]);
   end;
 
 
@@ -490,7 +478,6 @@ begin
 
    repeat
     ret := fpPoll(@pfd, 1, 50 );  // 50ms timeout
-
     if ret > 0 then
     begin
       if (pfd.revents and POLLIN) <> 0 then
@@ -505,14 +492,10 @@ begin
             headersize := getrtpheadersize(@receivebuffer, SizeOf(Framebuffer));
             checkheadersize := 100;
           end;
-
-          stream_ok := True;
-
-          snd_pcm_delay(pcm, @delay);
-          interlockedexchange(framecount, delay);
-
           bufferswapendian(received);
+          snd_pcm_delay(pcm, @delay);
           BufferToAlsa(received);
+          stream_ok := True;
           setdisplaypeak;
         end;
       end;
@@ -525,40 +508,42 @@ begin
 end;
 
 
-
-
 procedure TForm1.Timer1Timer(Sender: TObject);
+var
+  bufferedms:integer;
+  buffered:integer=0;
+  lbltext:shortstring;
+
 begin
-  Inc(nc);
-  if nc mod 5 = 0 then label1.Caption := IntToStr(framecount);
-  if nc mod 6 = 0 then
+ PaintBoxVU.Invalidate;
+ inc(timercount);
+ if timercount mod 5 = 0 then
+ begin
+ if stream_ok then
   begin
+    buffered:=InterlockedExchangeAdd(delay, 0);//InterlockedExchange(delay,delay);
+    bufferedms:= buffered div 2 *100000 div strtoint(par_freq);
+    lbltext:=  IntToStr(bufferedms div 100) + '.'+ IntToStr(bufferedms mod 100)+'ms';
+    if label1.Caption <> lbltext then label1.caption:=lbltext;
+    if label7.Caption <> 'Device: ' + par_name then label7.Caption := 'Device: ' + par_name;
+    if label5.Caption <> 'Stream: connected' then label5.Caption := 'Stream: connected';
+    end else
+
+ // stream nicht ok
+    begin
+    label1.Caption := '0.0ms';
+    if label5.Caption <> 'Stream: disconnected' then label5.Caption := 'Stream: disconnected';
+
     if assigned(pcm) then
     begin
-      if label7.Caption <> 'Device: ' + par_name then label7.Caption := 'Device: ' + par_name;
-      if stream_ok then
-      begin
-        stream_ok := False;
-        if label5.Caption <> 'Stream: connected' then
-          label5.Caption := 'Stream: connected';
-      end
-      else
-      if label5.Caption <> 'Stream: disconnected' then
-        label5.Caption := 'Stream: disconnected';
+      if label7.Caption <> 'Device: ' + par_name then label7.Caption := 'Device: ' + par_name
     end
     else
-    begin
       if label7.Caption <> 'Device: none' then label7.Caption := 'Device: none';
-      if label5.Caption <> 'Stream: disconnected' then  label5.Caption := 'Stream: disconnected';
-
-    end;
-    if not stream_ok then
-    begin
-      vuleft := 0;
-      vuright := 0;
-    end;
-  end;
-  PaintBoxVU.Invalidate;
+   end;
+     stream_ok:=false;
+ end;
 end;
+
 
 end.
