@@ -77,13 +77,13 @@ Use the provided `.deb` packages from the `bin` directory.
 Install the player:
 
 ```bash
-sudo apt install ./udp-player.deb
+sudo apt install /path/to/udp-player.deb
 ```
 
 Install the sender:
 
 ```bash
-sudo apt install ./udp-sender.deb
+sudo apt install /path/to/udp-sender.deb
 ```
 
 ---
