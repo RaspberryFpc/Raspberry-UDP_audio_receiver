@@ -1,7 +1,0 @@
-#!/bin/sh
-set -e
-
-# Capabilities setzen
-setcap cap_net_raw,cap_sys_nice+ep /usr/bin/udp_player || true
-
-exit 0

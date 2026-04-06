@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=UDP Sender
+Comment=UDP Audio Sender
+Exec=/usr/bin/udp_sender -on
+Icon=udp-sender
+Terminal=false
+Categories=Audio;AudioVideo;

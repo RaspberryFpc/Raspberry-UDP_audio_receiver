@@ -1,0 +1,9 @@
+Package: udp-sender
+Version: 0.0.1
+Section: sound
+Priority: optional
+Architecture: arm64
+Maintainer: Raspberryfpc
+Depends: ffmpeg, libc6, libgcc-s1
+Description: UDP Audio Sender for Raspberry Pi
+ sends audio via UDP using FFmpeg.

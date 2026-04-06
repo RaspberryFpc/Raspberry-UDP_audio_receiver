@@ -1,127 +1,149 @@
----
-# 🎶 Network Audio Receiver (UDP) for Raspberry Pi
+ # 🎶 Network Audio Receiver and Sender (UDP) for Raspberry Pi
 
-A lightweight **UDP stereo audio receiver** for Raspberry Pi.  
-- Lightweight UDP stereo audio receiver for Raspberry Pi with very low latency via ALSA and PipeWire. Developed in Free Pascal on Debian Bookworm and Trixie.
-- It outputs directly to **ALSA** (also compatible with **PipeWire** via ALSA emulation).
-- Ideal for real-time monitoring and live audio.
+A lightweight UDP stereo audio receiver together with an FFmpeg-based sender frontend for Raspberry Pi.
+
+* Ultra-low latency audio streaming over UDP
+* Direct ALSA output with PipeWire compatibility via ALSA emulation
+* Developed in Free Pascal using Codetyphon
+* Tested on Debian Bookworm and Debian Trixie
+* Ideal for real-time monitoring, live audio, and low-latency streaming setups
 
 ---
 
 ## ✨ Features
 
-* Receives **stereo audio over UDP** (e.g., RTP stream) with selectable audio output: 3.5 mm jack, HDMI, USB, and more (choose one device at a time)
-* Direct **ALSA audio output** for minimal delay
-* Fully compatible with **PipeWire** via ALSA emulation
-* Developed in **Free Pascal** using **Codetyphon** on **Debian Bookworm and Debian Trixie**
-* **No codec** → uncompressed audio, maximum quality, minimal processing delay
-* Supports multiple audio outputs: **3.5 mm jack, HDMI, USB, and more** (selectable in settings)
-* On startup, the window is visible
-* If the “Start Minimized” checkbox is selected, the application will start minimized
-* **Lightweight** with minimal dependencies (ALSA or PipeWire via ALSA)
+* Receives stereo audio over UDP with selectable audio outputs such as 3.5 mm jack, HDMI, USB audio, and more
+* Supports both multicast and unicast (singlecast)
+* Default multicast settings work out of the box in almost any local network
+* FFmpeg sender frontend included
+* Direct ALSA audio output for minimal delay
+* Fully compatible with PipeWire via ALSA emulation
+* Uncompressed audio for maximum quality and minimal processing delay
+* Lightweight with minimal dependencies
+* Developed in Free Pascal using Codetyphon
+* Window is visible on startup
+* Optional “Start Minimized” mode
+* Supports multiple audio devices with individual settings
 
 ---
 
-⚡ Ultra-Low Latency Audio Streaming
+## ⚡ Ultra-Low Latency Audio Streaming
 
-This project is optimized for extremely low end-to-end latency — achieving sub-7 ms audio transmission over network.
+This project is optimized for extremely low end-to-end latency and can achieve less than 7 ms total audio delay over the network.
 
-By tuning FFmpeg RTP packet size from the default 1472 bytes down to 736 bytes, latency is significantly reduced across the entire pipeline:
+By reducing the FFmpeg RTP packet size from the default 1472 bytes to 736 bytes, latency is significantly reduced across the entire transmission path.
 
-🚀 ~3.9 ms sender latency
-🌐 ~0.5 ms network latency
-🎧 ~2.5 ms receiver latency
+* 🚀 Sender latency: approximately 3.9 ms
+* 🌐 Network latency: approximately 0.5 ms
+* 🎧 Receiver latency: approximately 2.5 ms
 
-👉 Total latency: < 7 ms
+👉 Total latency: less than 7 ms
 
-🔊 Real-World Comparison
+### 🔊 Real-World Comparison
 
-That’s roughly the same delay as standing just ~2.5 meters away from a speaker — effectively real-time audio.
+This is roughly the same delay as standing about 2.5 meters away from a speaker.
 
-💡 Designed for Performance
-Buffer and delay values are displayed in milliseconds (ms) for intuitive monitoring
-Optimized for low-latency ALSA playback
-Smaller packets = faster delivery (with minimal overhead trade-off)
+### 💡 Designed for Performance
 
+* Buffer and delay values are displayed in milliseconds for easier monitoring
+* Optimized for low-latency ALSA playback
+* Smaller packets improve response time with only minimal protocol overhead
 
-
+---
 
 ## 💡 Example Test Setup
 
-* **Sender**: Raspberry Pi 5 connected via Wlan streaming audio over UDP
-* **Receiver**: Raspberry Pi 4 connected via Ethernet
-* **Output**: 3.5 mm jack → HiFi amplifier, or HDMI/USB audio
+* Sender: Raspberry Pi 5 connected via Wi-Fi streaming audio over UDP
+* Receiver: Raspberry Pi 4 connected via Ethernet
+* Output: 3.5 mm jack to HiFi amplifier, HDMI audio, or USB audio
 
 Result: Stable low-latency playback on a typical home network, even while streaming video.
 
 ---
 
-## ▶️ Usage
+## 📦 Downloads
 
-### 📤 Sender (System Audio)
+Downloads are available from:
 
-Install `ffmpeg`:
-
-```bash
-sudo apt install ffmpeg
-```
-
-To transmit system audio, use the provided startup script **ffmpeg_transmitter.sh**:
-
-1. Edit the script and replace the IP address with the address of your receiver.  
-2. Set the port number to match the configuration on the receiver.  
-3. Make the script executable:
-
-```bash
-chmod +x ffmpeg_transmitter.sh
-```
-
-4. Save the file, place it on the desktop, and start it with a double-click.
-
-### 📥 Receiver
-
-Start the player:
-
-```bash
-sudo ./udp_player
-```
-- If the receiver is **installed via the provided `.deb` package**, it can also be started conveniently via the system menu.
-- In this case the player **does not require sudo**, as the necessary capabilities (`cap_net_raw,cap_sys_nice+ep`) are set during installation.  
-- On first start, it will create a **configuration file** at:
-
-```
-/var/lib/udp_player/udp_player.conf
-```
-
-- A window appears and starts playback automatically.  
-- Select the desired audio output in the settings window.  
-- Repeats the last valid audio block up to five times if new data is missing, preventing audible dropouts.
+* [https://sourceforge.net/projects/raspberry-udp-audio-receiver/](https://sourceforge.net/projects/raspberry-udp-audio-receiver/)
+* [https://github.com/RaspberryFpc/Raspberry-UDP_audio_receiver/](https://github.com/RaspberryFpc/Raspberry-UDP_audio_receiver/)
 
 ---
 
-## ⚙️ Settings Description
+## 📥 Installation
 
-Control / Field | Description
---- | ---
-**Audio Output Selection** | Choose the audio output device (Headphones/JACK, HDMI, USB audio, etc.). If no configuration exists for a device, a default configuration is created automatically at first start.
-**IP** | IP address to receive audio from. Use `0.0.0.0` to listen on all network interfaces.
-**Port** | UDP port for incoming audio. Default is `5010`.
-**Frequency** | Audio sample rate in Hz.
-**Latency** | Audio latency in samples. Typical values: 22000 for JACK/Headphones, 4000 for USB audio.
-**Swap Byte Order** | Enable this if the incoming audio uses a different byte order (big/little endian).
-**Hide Window** | If enabled, the application window remains minimized or hidden once audio starts.
-**Test changes** | This button immediately applies the current settings without saving them.
-**Save changes** | This button saves the current settings to the configuration file for future use.
-**Delete Device** | This button deletes the selected device configuration. If the device exists, it will be recreated with default values at the next program start.
+Use the provided `.deb` packages from the `bin` directory.
+
+Install the player:
+
+```bash
+sudo apt install ./udp-player.deb
+```
+
+Install the sender:
+
+```bash
+sudo apt install ./udp-sender.deb
+```
+
+---
+
+## ▶️ Usage
+
+### ▶️ Start the Player
+
+Start the player using the desktop menu entry created during installation.
+
+### 📤 Sender
+
+Start the sender using the desktop menu entry.
+
+In the sender settings, you can configure:
+
+* Audio source
+* Destination IP address
+* UDP port
+
+Default multicast address:
+
+```text
+239.255.0.1
+```
+
+For multicast, use an address in the range:
+
+```text
+224.0.0.0 – 239.255.255.255
+```
+
+For unicast (singlecast), use a free IPv4 address in your local network.
+
+---
+
+## ⚙️ Player Settings Description
+
+| Control / Field        | Description                                                                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Audio Output Selection | Select the audio output device such as headphones, HDMI, or USB audio. If no configuration exists, a default configuration is created automatically. |
+| IP                     | IP address to receive audio from. Use `0.0.0.0` to listen on all network interfaces.                                                                 |
+| Port                   | UDP port for incoming audio. Default: `5010`                                                                                                         |
+| Frequency              | Audio sample rate in Hz                                                                                                                              |
+| Latency                | Audio latency in samples. Typical values: `22000` for headphone output and `4000` for USB audio                                                      |
+| Swap Byte Order        | Enable this if the incoming audio stream uses a different byte order                                                                                 |
+| Hide Window            | If enabled, the application window is minimized or hidden after audio playback starts                                                                |
+| Test Changes           | Applies the current settings immediately without saving                                                                                              |
+| Save Changes           | Saves the current settings to the configuration file                                                                                                 |
+| Delete Device          | Deletes the selected device configuration. Missing configurations are recreated automatically at the next start                                      |
 
 ---
 
 ## 🎯 Latency Optimization
 
-* **Lower buffer size** → lower delay  
-* **Too low** → possible dropouts or crackling audio  
-* Best settings depend on:
-  * Network type (**LAN** allows lower latency than Wi-Fi)
+* Lower buffer sizes reduce delay
+* Too low values may cause dropouts or crackling audio
+* Best values depend on:
+
+  * Network type (LAN is usually faster than Wi-Fi)
   * Raspberry Pi performance
   * Audio hardware
 
@@ -129,79 +151,28 @@ Control / Field | Description
 
 ## 🔊 Audio Volume
 
-If sound is too quiet:
-
-```bash
-alsamixer
-```
-
-* Press `F6` to select the right device  
-* Raise the **Master** volume  
-
-Or via terminal:
-
-```bash
-amixer set 'Master' 100% unmute
-```
-
----
-# 📦 Installation / Deinstallation via dpkg
-
-## Installation Steps
-
-1. Copy the `.deb` package to your Raspberry Pi.
-
-2. Install the package:
-
-```bash
-sudo dpkg -i udp_player_x.y.z.deb
-```
-
-This will install:
-
-```
-/usr/bin/udp_player         # Binary
-/usr/share/applications/... # Desktop menu entry
-~/.udp_player/              # Config folder (empty on first start)
-```
-
-Necessary capabilities are automatically set (`cap_net_raw,cap_sys_nice+ep`) → no sudo required for running the player.
-
-3. Start the player:
-
-```bash
-udp_player 
-or use the menu entry created during installation.
-```
+If the sound is too quiet, increase the volume in the player settings.
 
 ---
 
-## Deinstallation Steps
-
-To remove the player completely:
+## 📦 Deinstallation
 
 ```bash
-sudo dpkg -r udp_player
+sudo apt purge udp-player
+sudo apt purge udp-sender
 ```
 
-This removes the binary and the menu entry.
-
-To also remove the config folder (if you want a clean uninstall):
-
-```bash
-rm -rf ~/.udp_player
-```
-
+---
 
 ## 📜 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the MIT License.
 
 ---
 
 ## 🌐 Other Projects by the Author
 
-* [pibackup](https://github.com/RaspberryFpc/pibackup) – Portable live backup and restore tool with GUI, Zstandard compression, auto-shrinking (resize2fs) and flexible restore options.
-* [DS18B20-FPC-Pi-GUI](https://github.com/RaspberryFpc/DS18B20-FPC-Pi-GUI) – GUI tool to read DS18B20 temperature sensors with linearization for high accuracy.
-* [RaspberryPi-BME280-GUI](https://github.com/RaspberryFpc/RaspberryPi-BME280-GUI) – Complete GUI application for accessing the BME280 I²C sensor using Free Pascal.
-* [RaspberryPi-GPIOv2-FPC](https://github.com/RaspberryFpc/RaspberryPi-GPIOv2-FPC) – Simple and fast Pascal unit for controlling GPIO pins via the Linux GPIO character device interface.
+* [pibackup](https://github.com/RaspberryFpc/pibackup) – Portable live backup and restore tool with GUI, Zstandard compression, auto-shrinking and flexible restore options.
+* [DS18B20-FPC-Pi-GUI](https://github.com/RaspberryFpc/DS18B20-FPC-Pi-GUI) – GUI tool for reading DS18B20 temperature sensors with linearization for high accuracy.
+* [RaspberryPi-BME280-GUI](https://github.com/RaspberryFpc/RaspberryPi-BME280-GUI) – GUI application for accessing the BME280 I²C sensor using Free Pascal.
+* [RaspberryPi-GPIOv2-FPC](https://github.com/RaspberryFpc/RaspberryPi-GPIOv2-FPC) – Fast Pascal unit for controlling GPIO pins via the Linux GPIO character device interface.

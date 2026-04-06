@@ -1,8 +1,0 @@
-Package: udp-player
-Version: 1.1.2
-Section: sound
-Priority: optional
-Architecture: arm64
-Maintainer: Raspberryfpc
-Description: UDP Audio Player for Raspberry Pi
- Receives audio via UDP and plays it using ALSA.

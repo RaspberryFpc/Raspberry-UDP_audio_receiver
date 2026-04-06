@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.4] – 2026-04-06 
+* Added multicast support to the player
+* Added FFmpeg Sender frontend 
+
 ## [1.1.1] – 2026-03-21 
 ###Realtime UDP Audio Improvements
 Audio delay display changed from samples to milliseconds (ms) for better readability

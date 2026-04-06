@@ -1,4 +1,9 @@
-source/lib/
-source/udp_player.conf
-source/udp_player.dbg
-build_release.sh
+player/source/lib/
+player/source/udp_player.conf
+player/source/udp_player.dbg
+player/build_release.sh
+
+sender/source/lib/
+sender/source/udp_player.conf
+sender/source/udp_player.dbg
+sender/build_release.sh

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=UDP Player
+Comment=UDP Audio Player
+Exec=/usr/bin/udp_player
+Icon=udp-player
+Terminal=false
+Categories=Audio;AudioVideo;

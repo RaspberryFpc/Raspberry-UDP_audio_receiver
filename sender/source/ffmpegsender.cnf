@@ -1,0 +1,4 @@
+ffmpeg;-f pulse;-i alsa_output.platform-fe00b840.mailbox.stereo-fallback.monitor;-ar 48000;-ac 2;-f rtp;-pkt_size 736;-fflags nobuffer;-flags low_delay;-max_delay 0;-flush_packets 1;rtp://239.255.0.1:5010
+ffmpeg;-f pulse;-i alsa_input.usb-0d8c_C-Media_USB_Headphone_Set-00.mono-fallback;-ar 48000;-ac 2;-f rtp;-pkt_size 736;-fflags nobuffer;-flags low_delay;-max_delay 0;-flush_packets 1;rtp://239.255.0.1:5010
+ffmpeg;-f pulse;-i default;-ar 48000;-ac 2;-f rtp;-pkt_size 736;-fflags nobuffer;-flags low_delay;-max_delay 0;-flush_packets 1;rtp://239.255.0.1:5010
+ffmpeg;-f pulse;-i alsa_output.usb-0d8c_C-Media_USB_Headphone_Set-00.analog-stereo.monitor;-ar 48000;-ac 2;-f rtp;-pkt_size 736;-fflags nobuffer;-flags low_delay;-max_delay 0;-flush_packets 1;rtp://239.255.0.1:5010

@@ -1,4 +1,4 @@
-# 🎶 Network Audio Receiver (UDP)
+# 🎶 Network Audio Receiver (UDP) and Sender
 
 ⚡ **Ultra-low latency audio streaming for Raspberry Pi**
 
@@ -19,9 +19,24 @@ Experience near real-time audio with **sub-7 ms latency** over your network.
 
 ---
 
-## 📡 Sender
+## 🌍 Network Compatibility
 
-A ready-to-use script is included to enable full end-to-end audio streaming.
+Works out of the box in almost every local network thanks to multicast support.
+
+* 📡 Multicast enabled by default for simple local network streaming
+* 🎯 Unicast / singlecast mode also supported for direct one-to-one connections
+* 🔧 Flexible network settings for different environments and setups
+
+---
+
+## 📦 Easy Installation
+
+Both sender and receiver are available as simple Debian packages.
+
+* 📥 Ready-to-install `.deb` packages
+* ⚡ Quick setup on Raspberry Pi and Debian systems
+* 🧩 Separate packages for sender and receiver included in the release
+* 🚀 Start streaming within minutes without manual compilation
 
 
 ## ⚡ Ultra-Low Latency

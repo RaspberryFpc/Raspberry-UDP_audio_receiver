@@ -1,0 +1,9 @@
+Package: udp-player
+Version: 1.1.4
+Section: sound
+Priority: optional
+Architecture: arm64
+Maintainer: Raspberryfpc
+Depends: libc6, libgcc-s1, libasound2
+Description: Ultra-low latency UDP audio receiver
+ Low latency audio receiver for Raspberry Pi and Linux systems.
