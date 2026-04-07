@@ -1,6 +1,10 @@
  # Changelog
 
-All notable changes to this project are documented in this file.
+All notable changes to this project are documented in this file
+
+## [1.1.5] – 2026-04-06 
+### Bugfix
+- Added missing dependency for Qt5
 
 ## [1.1.4] – 2026-04-06 
 * Added multicast support to the player
