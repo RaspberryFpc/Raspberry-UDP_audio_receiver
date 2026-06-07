@@ -1,6 +1,9 @@
  # Changelog
 
 All notable changes to this project are documented in this file
+## [1.1.6] – 2026-06-07 
+- Added warning when attempting to run the application as root or via sudo.
+- Corrected false default setting in sender (acodec pcm_s16le to -acodec pcm_s16le)
 
 ## [1.1.5] – 2026-04-06 
 ### Bugfix
@@ -65,6 +68,7 @@ Moved IP address and port to constants in the sender script for easier configura
 ## [1.0.11] – 2025-12-22
 ### Improved
 - Display of the audio output device status even when no audio stream is connected.
+
 
 ## [1.0.10] – 2025-12-21
 ### Added

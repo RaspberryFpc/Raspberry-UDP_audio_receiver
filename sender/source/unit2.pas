@@ -113,7 +113,11 @@ begin
     p := pos(':', s);
 
     edtarget.Text := copy(s, 1, p - 1);
-    edport.Text := copy(s, p + 1, maxint);
+
+    s:=  copy(s, p + 1, maxint);
+    while copy(s,length(s))=';' do delete (s,length(s),1);
+    edport.Text := s;
+
 
   finally
     SL.Free;
@@ -173,7 +177,8 @@ begin
   // configlist erstellen
   form1.configlist[0] := '';
   for x := 0 to memo1.Lines.Count - 1 do
-    form1.configlist[0] := form1.configlist[0] + memo1.Lines[x] + ';';
+   if memo1.lines[x] > '' then
+       form1.configlist[0] := form1.configlist[0] + memo1.Lines[x] + ';';
   // speichern
   form1.configlist.SaveToFile(form1.configfilename);
   form1.restart;
@@ -200,7 +205,7 @@ procedure TForm2.Button2Click(Sender: TObject);
 var
   s: string;
 begin
-  s := 'ffmpeg' + #10 + '-f pulse' + #10 + '-i default' + #10 +'acodec pcm_s16le'+#10+'-ar 48000' + #10 + '-ac 2' + #10 + '-f rtp' + #10 + '-pkt_size 736' + #10 + '-fflags nobuffer' + #10 + '-flags low_delay' + #10 +
+  s := 'ffmpeg' + #10 + '-f pulse' + #10 + '-i default' + #10 +'-acodec pcm_s16le'+#10+'-ar 48000' + #10 + '-ac 2' + #10 + '-f rtp' + #10 + '-pkt_size 736' + #10 + '-fflags nobuffer' + #10 + '-flags low_delay' + #10 +
     '-max_delay 0' + #10 + '-flush_packets 1' + #10 + 'rtp://239.255.0.1:5010';
 
   memo1.Text := s;

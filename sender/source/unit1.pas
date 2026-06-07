@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,process,unit2,
-  exethread;
+  exethread ,BaseUnix;
 
 type
 
@@ -64,9 +64,10 @@ begin
   btstart.Enabled:=false;
   btstop.Enabled:=true;
   for x:=1 to length(s) do
-      if s[x]=';' then s[x]:=' ';
+     if s[x]=';' then s[x]:=' ';
+  s:=trim(s);
   PrexeThreadedBash(s,listbox1);
-end;
+ end;
 
 
 
@@ -128,6 +129,13 @@ procedure TForm1.FormCreate(Sender: TObject);
   devicelist:tstringlist;
   proc:tprocess;
 begin
+
+  if fpGetUID = 0 then
+  begin
+    ShowMessage('This program must not be run with sudo or as root.');
+    Halt(1);
+  end;
+
   ConfigFileName := IncludeTrailingPathDelimiter(GetEnvironmentVariable('HOME')) + '.config/ffmpegsender/ffmpegsender.conf';
   configlist:=tstringlist.create;
   forcedirectories(extractfilepath(configfilename));

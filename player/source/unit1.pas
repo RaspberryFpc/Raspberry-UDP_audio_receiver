@@ -259,6 +259,11 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+    if fpGetUID = 0 then
+  begin
+    ShowMessage('This program must not be run with sudo or as root.');
+    Halt(1);
+  end;
   form1.Caption := 'UDP player v' + version;
   as_Load;
 end;
@@ -508,17 +513,6 @@ end;
 
  ///////////////////////////////////////////////////////////////////
 
-
-  //// Receive Buffer setzen
-  //fpsetsockopt(sock, SOL_SOCKET, SO_RCVBUF, @bufsize, SizeOf(bufsize));
-  //
-  //// Binden
-  //if fpBind(sock, @sockaddr, SizeOf(sockaddr)) < 0 then
-  //begin
-  //  writeln('Fehler beim Binden des Sockets.');
-  //  fpClose(sock);
-  //  Exit;
-  //end;
 
   // Bei Multicast der Gruppe beitreten
   if isMulticast then
